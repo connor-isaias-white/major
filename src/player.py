@@ -31,15 +31,15 @@ class player:
         self.draw(self.colour)
 
     def see(self, enemyPos):
-        upEye = self.pos[1]
-        downEye = config["screen"]["height"] -self.pos[1]
+        # upEye = self.pos[1]
+        # downEye = config["screen"]["height"] -self.pos[1]
         leftEye = self.pos[0]
         rightEye = config["screen"]["width"] -self.pos[0]
-        enemyDist = ((self.pos[0] - enemyPos[0])**2 + (self.pos[1] - enemyPos[1])**2)**(1/2)
-        # print(f"{self.name}: up: {upEye}, down: {downEye}, left: {leftEye}, right: {rightEye}, enemyPos: {enemyPos}, ownPos: {self.pos}, enemyDist: {enemyDist}")
+        enemyDist = (self.pos[0] - enemyPos[0]
+        print(f"{self.name}: left: {leftEye}, right: {rightEye}, enemyPos: {enemyPos[0]}, ownPos: {self.pos[0]}, enemyDist: {enemyDist}")
 
     def decide(self, enemyPos):
         self.see(enemyPos)
-        directions = ["up", "down", "left", "right"]
-        choice = random.randint(0, 3)
+        directions = ["left", "right"]
+        choice = random.randint(0, 1)
         self.move(directions[choice])

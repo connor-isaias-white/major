@@ -25,8 +25,8 @@ class logic:
 
     def setup(self):
         self.startTime = time.time()
-        self.seaker = player([100,100], (255, 0, 0), self.display, "seaker")
-        self.hider = player([400,400], (0, 255, 0), self.display, "hider")
+        self.seaker = player([175,100], (255, 0, 0), self.display, "seaker")
+        self.hider = player([325,100], (0, 255, 0), self.display, "hider")
 
     def events(self):
         for event in pygame.event.get():
