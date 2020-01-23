@@ -10,6 +10,8 @@ class player:
         self.colour = colour
         self.display = display
         self.name = name
+        self.wins = 0
+        self.losses = 0
 
     def draw(self, colour):
         pygame.draw.circle(self.display, colour, self.pos, self.radius)
@@ -35,8 +37,8 @@ class player:
         # downEye = config["screen"]["height"] -self.pos[1]
         leftEye = self.pos[0]
         rightEye = config["screen"]["width"] -self.pos[0]
-        enemyDist = (self.pos[0] - enemyPos[0])
-        print(f"{self.name}: left: {leftEye}, right: {rightEye}, enemyPos: {enemyPos[0]}, ownPos: {self.pos[0]}, enemyDist: {enemyDist}")
+        enemyDist = abs(self.pos[0] - enemyPos[0])
+        # print(f"{self.name}: left: {leftEye}, right: {rightEye}, enemyPos: {enemyPos[0]}, ownPos: {self.pos[0]}, enemyDist: {enemyDist}")
 
     def decide(self, enemyPos):
         self.see(enemyPos)
