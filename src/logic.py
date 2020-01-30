@@ -17,7 +17,8 @@ class logic:
             self.events()
 
             self.seaker.decide(self.hider.pos)
-            self.hider.decide(self.seaker.pos)
+            self.hider.draw((0,0,255))
+            # self.hider.decide(self.seaker.pos)
             self.checkwin()
 
             pygame.display.update()
@@ -35,9 +36,13 @@ class logic:
                 exit()
 
     def checkwin(self):
+        maxFrames = 6000
+
         winner = "none"
         frames = int((time.time() - self.startTime)*config["screen"]["fps"])
-        if frames >= 6000:
+        self.seaker.score = 1-frames/maxFrames
+        self.hider.score = frames/maxFrames
+        if frames >= maxFrames:
             print(f"seaker took to long, hider won after {frames} frames")
             winner = "hider"
         if self.seaker.pos == self.hider.pos:
@@ -48,14 +53,10 @@ class logic:
             if i.pos[0] < 0 or i.pos[1] < 0 or i.pos[0] > self.width or i.pos[1] > self.height:
                 print(f"{i.name} hit wall")
                 winner = i.name
+                i.score = 0
 
         if winner != "none":
-            if winner == "seaker":
-                self.seaker.wins += 1
-                self.hider.losses += 1
-            else:
-                self.hider.wins += 1
-                self.seaker.losses += 1
+            print(self.seaker.score)
             for i in [self.seaker, self.hider]:
                 i.draw(0)
             self.setup()
