@@ -1,18 +1,52 @@
 import random
+import math
 trainData = {
-    [1,1,1]: 1,
-    [1,0,1]: 1,
-    [0,1,1]: 0,
-    [0,0,1]: 0,
-    [0,0,0]: 0,
+    [1,1,1,1]: 1,
+    [1,1,1,0]: 1,
+    [1,1,0,1]: 1,
+    [1,0,1,1]: 1,
+    [1,0,1,0]: 0,
+    [1,0,0,1]: 0,
+    [1,0,0,0]: 0,
+    [0,1,1,0]: 1,
+    [0,1,0,1]: 0,
+    [0,1,0,0]: 0,
+    [0,0,1,1]: 1,
+    [0,0,0,0]: 0,
 }
 testData = {
-    [1,1,0]: 1,
-    [0,1,0]: 0,
-    [1,0,0]: 1,
-}
-first = random.randint(0, 3)
+    [1,1,0,0]: 1,
+    [0,1,1,1]: 1,
+    [0,0,1,0]: 0,
+    [0,0,0,1]: 0,
 
-c1 = random.random()
-c2= random.random()
-c3 = random.random()
+}
+
+def neuron(layer):
+    bias = random.random()
+    numPrev = len(layer)
+    val = bias
+    for neral in layer:
+        weight = random.random()
+        val += weight*layer[neral]
+    val = sig(val)
+
+if __name__ == "__main__":
+
+    for run in range (6000):
+        for i in trainData:
+            pass
+
+
+
+class neuron:
+
+    def __init__(self):
+        self.bias = random.random()
+
+    def value(self):
+        pass
+
+    def sig(x):
+        y = 1/(1+math.exp(-x))
+        return y
