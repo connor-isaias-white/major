@@ -22,15 +22,6 @@ testData = {
 
 }
 
-def neuron(layer):
-    bias = random.random()
-    numPrev = len(layer)
-    val = bias
-    for neral in layer:
-        weight = random.random()
-        val += weight*layer[neral]
-    val = sig(val)
-
 if __name__ == "__main__":
 
     for run in range (6000):
@@ -44,8 +35,15 @@ class neuron:
     def __init__(self):
         self.bias = random.random()
 
-    def value(self):
-        pass
+    def value(self, layer):
+        val = self.bias
+        numPrev = len(layer)
+        val = bias
+        for neral in layer:
+            weight = random.random()
+            val += weight*layer[neral]
+        self.value = self.sig(val)
+
 
     def sig(x):
         y = 1/(1+math.exp(-x))
