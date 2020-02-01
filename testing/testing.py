@@ -48,7 +48,9 @@ class neuron:
         return y
 
 def train():
-    for run in range (20000):
+    perfectNotFount = True
+    run = 0
+    while perfectNotFount:
         layers = []
         for hiddenlayer in range(config['layers']):
             layer = []
@@ -62,30 +64,48 @@ def train():
 
         percent = network(trainData, layers)
         if percent == 100:
-            print(f'correct: {percent}%')
+            print(f'correct: {percent}%, after {run} tries')
+            perfectNotFount = False
             return layers
-    return 0
+        run += 1
 
 def network(datas, layers):
     score = 0
     for data in datas:
-        input = data[0]
-        for layer in layers:
-            output = []
-            for nero in layer:
-                nero.value(input)
-                output.append(nero.val)
-            input = output
-        if round(output[0]) == data[1]:
+        guess = putInNetwork(data[0], layers)
+        if round(guess[0]) == data[1]:
             score += 1
     percent = round(score/len(datas)*100)
     return percent
 
+def putInNetwork(input, layers):
+    for layer in layers:
+        output = []
+        for nero in layer:
+            nero.value(input)
+            output.append(nero.val)
+        input = output
+    return output
+
+
 def test(best):
     final = network(trainData, best)
     print(f"testing score: {final}%")
+    return final
 
 if __name__ == "__main__":
     best = train()
     if best != 0:
-        test(best)
+        final = test(best)
+        if final == 100:
+            print("input 4 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
+            manData = input("> ")
+            while manData:
+                manData = manData.replace(" ", '').split(",")
+                data = [int(i) for i in manData]
+                output = round(putInNetwork(data, best)[0])
+                if output == 1:
+                    print("2 at least adjacent 1s")
+                else:
+                    print("No adjacent values")
+                manData = input("> ")
