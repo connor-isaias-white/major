@@ -1,29 +1,10 @@
 import random
 import math
-trainData = [
-    [[1,1,1,1], 1],
-    [[1,1,1,0], 1],
-    [[1,1,0,1], 1],
-    [[1,0,1,1], 1],
-    [[1,0,1,0], 0],
-    [[1,0,0,1], 0],
-    [[1,0,0,0], 0],
-    [[0,1,1,0], 1],
-    [[0,1,0,1], 0],
-    [[0,1,0,0], 0],
-    [[0,0,1,1], 1],
-    [[0,0,0,0], 0],
-]
-testData = [
-    [[1,1,0,0], 1],
-    [[0,1,1,1], 1],
-    [[0,0,1,0], 0],
-    [[0,0,0,1], 0],
 
-]
 config = {
     'layers': 2,
     'neuroninlayer': [3, 1],
+    'initinputLength': 5,
 }
 
 class neuron:
@@ -58,7 +39,7 @@ def train():
                 if hiddenlayer != 0:
                     inputLength = config['neuroninlayer'][hiddenlayer-1]
                 else:
-                    inputLength = len(trainData[0][0])
+                    inputLength = config['initinputLength']
                 layer.append(neuron(neuro,inputLength))
             layers.append(layer)
 
@@ -93,12 +74,36 @@ def test(best):
     print(f"testing score: {final}%")
     return final
 
+def createData():
+    length = config["initinputLength"]
+    testData = []
+    trainData = []
+    for i in range(2**length):
+        num = bin(i)[2:]
+        datavalue = [0 for i in range(length-len(str(num)))]
+        for i in str(num):
+            datavalue.append(int(i))
+
+        ans = 0
+        for binary in range(length-1):
+            if datavalue[binary+1] == datavalue[binary]:
+                ans = 1
+        if random.random() > 0.80:
+            testData.append([datavalue, ans])
+        else:
+            trainData.append([datavalue, ans])
+    return trainData, testData
+
+
 if __name__ == "__main__":
+    trainData, testData = createData()
+
     best = train()
     if best != 0:
         final = test(best)
+
         if final == 100:
-            print("input 4 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
+            print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
             manData = input("> ")
             while manData:
                 manData = manData.replace(" ", '').split(",")
