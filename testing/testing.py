@@ -45,7 +45,7 @@ def train():
 
         percent = network(trainData, layers)
         if percent == 100:
-            print(f'correct: {percent}%, after {run} tries')
+             print(f'correct: {percent}%, after {run} tries')
             perfectNotFount = False
             return layers
         run += 1
@@ -86,7 +86,7 @@ def createData():
 
         ans = 0
         for binary in range(length-1):
-            if datavalue[binary+1] == datavalue[binary]:
+            if datavalue[binary+1] == datavalue[binary] and datavalue[binary] == 1:
                 ans = 1
         if random.random() > 0.80:
             testData.append([datavalue, ans])
