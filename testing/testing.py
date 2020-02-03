@@ -10,9 +10,9 @@ config = {
 class neuron:
 
     def __init__(self, pos, inputLength):
-        self.bias = random.randint(-6, 6)
+        self.bias = random.uniform(-6, 6)
         self.pos = pos
-        self.weights = [random.randint(-6, 6) for i in range(inputLength)]
+        self.weights = [random.uniform(-6, 6) for i in range(inputLength)]
 
     def value(self, layer):
         val = self.bias
