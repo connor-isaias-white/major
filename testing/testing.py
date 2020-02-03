@@ -4,7 +4,7 @@ import math
 config = {
     'layers': 2,
     'neuroninlayer': [3, 1],
-    'initinputLength': 5,
+    'initinputLength': 4,
 }
 
 class neuron:
@@ -44,7 +44,7 @@ def train():
             layers.append(layer)
 
         percent = network(trainData, layers)
-        if percent == 100:
+        if percent == 100 or percent ==0:
             print(f'correct: {percent}%, after {run} tries')
             perfectNotFount = False
             return layers
@@ -102,14 +102,14 @@ if __name__ == "__main__":
     if best != 0:
         final = test(best)
 
-        if final == 100:
+        if final == 100 or final == 0:
             print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
             manData = input("> ")
             while manData:
                 manData = manData.replace(" ", '').split(",")
                 data = [int(i) for i in manData]
                 output = round(putInNetwork(data, best)[0])
-                if output == 1:
+                if output == final/100:
                     print("2 at least adjacent 1s")
                 else:
                     print("No adjacent values")
