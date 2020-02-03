@@ -2,8 +2,8 @@ import random
 import math
 
 config = {
-    'layers': 2,
-    'neuroninlayer': [3, 1],
+    # 'layers': 2,
+    # 'neuroninlayer': [3, 1],
     'initinputLength': 4,
 }
 
@@ -32,12 +32,16 @@ def train():
     perfectNotFount = True
     run = 0
     while perfectNotFount:
+        numlayers = random.randint(2, config['initinputLength'])
+        neuroninlayer = [random.randint(2, config['initinputLength']) for i in range(numlayers - 1)]
+        neuroninlayer.append(1)
+        # print(f'{numlayers-1} hidden layers and setup like {neuroninlayer}')
         layers = []
-        for hiddenlayer in range(config['layers']):
+        for hiddenlayer in range(numlayers):
             layer = []
-            for neuro in range(config['neuroninlayer'][hiddenlayer]):
+            for neuro in range(neuroninlayer[hiddenlayer]):
                 if hiddenlayer != 0:
-                    inputLength = config['neuroninlayer'][hiddenlayer-1]
+                    inputLength = neuroninlayer[hiddenlayer-1]
                 else:
                     inputLength = config['initinputLength']
                 layer.append(neuron(neuro,inputLength))
@@ -45,7 +49,7 @@ def train():
 
         percent = network(trainData, layers)
         if percent == 100 or percent ==0:
-            print(f'correct: {percent}%, after {run} tries')
+            print(f'correct: {percent}%, after {run} tries, {numlayers-1} hidden layers and setup like {neuroninlayer}')
             perfectNotFount = False
             return layers
         run += 1
@@ -110,7 +114,7 @@ if __name__ == "__main__":
                 data = [int(i) for i in manData]
                 output = round(putInNetwork(data, best)[0])
                 if output == final/100:
-                    print("2 at least adjacent 1s")
+                    print("at least 2 adjacent 1s")
                 else:
-                    print("No adjacent values")
+                    print("No adjacent 1s")
                 manData = input("> ")
