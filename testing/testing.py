@@ -45,7 +45,7 @@ def train():
 
         percent = network(trainData, layers)
         if percent == 100:
-             print(f'correct: {percent}%, after {run} tries')
+            print(f'correct: {percent}%, after {run} tries')
             perfectNotFount = False
             return layers
         run += 1
