@@ -1,6 +1,7 @@
 import pygame
 from config import config
 import random
+import math
 
 class player:
     radius = 5
@@ -10,6 +11,7 @@ class player:
         self.colour = colour
         self.display = display
         self.name = name
+        self.score = 0
 
     def draw(self, colour):
         pygame.draw.circle(self.display, colour, self.pos, self.radius)
@@ -30,16 +32,31 @@ class player:
 
         self.draw(self.colour)
 
-    def see(self, enemyPos):
-        upEye = self.pos[1]
-        downEye = config["screen"]["height"] -self.pos[1]
-        leftEye = self.pos[0]
-        rightEye = config["screen"]["width"] -self.pos[0]
-        enemyDist = ((self.pos[0] - enemyPos[0])**2 + (self.pos[1] - enemyPos[1])**2)**(1/2)
-        # print(f"{self.name}: up: {upEye}, down: {downEye}, left: {leftEye}, right: {rightEye}, enemyPos: {enemyPos}, ownPos: {self.pos}, enemyDist: {enemyDist}")
+    def see(self):
+        # upEye = self.pos[1]
+        # downEye = config["screen"]["height"] -self.pos[1]
+
+        #calculate bearing
+        if (self.enemyPos[0]-self.pos[0]) != 0:
+            self.bearing = math.atan((self.enemyPos[1]-self.pos[1])/(self.enemyPos[0]-self.pos[0]))
+        else:
+            self.bearing = 90
+
+        if (self.enemyPos[1]-self.pos[1]) < 0 and (self.enemyPos[0]-self.pos[0]) <0:
+            self.bearing = 180 -self.bearing
+        elif (self.enemyPos[1]-self.pos[1]) < 0 :
+            self.bearing = 360 -self.bearing
+        elif (self.enemyPos[0]-self.pos[0]) < 0:
+            self.bearing = self.bearing + 180
+
+        self.leftEye = self.pos[0]
+        self.rightEye = config["screen"]["width"] -self.pos[0]
+        self.enemyDist = abs(self.pos[0] - self.enemyPos[0])
+        # print(f"{self.name}: left: {leftEye}, right: {rightEye}, enemyPos: {enemyPos[0]}, ownPos: {self.pos[0]}, enemyDist: {enemyDist}, self.bearing: {self.bearing}")
 
     def decide(self, enemyPos):
-        self.see(enemyPos)
-        directions = ["up", "down", "left", "right"]
-        choice = random.randint(0, 3)
+        self.enemyPos = enemyPos
+        self.see()
+        directions = ["left", "right"]
+        choice = random.randint(0, 1)
         self.move(directions[choice])
