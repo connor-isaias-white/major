@@ -1,10 +1,13 @@
 import random
 import math
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas
 
 config = {
     # 'layers': 2,
     # 'neuroninlayer': [3, 1],
-    'initinputLength': 4,
+    'initinputLength': 3,
 }
 
 class neuron:
@@ -99,6 +102,23 @@ def createData():
     return trainData, testData
 
 
+def plot(network):
+    print(network)
+    b = np.matrix([[1,1,2],[3,5,4]])
+    b_asarray = np.asarray(b)
+    print(b_asarray)
+    plt.plot(b_asarray[0], b_asarray[1], label='network',marker= 'o')
+
+    plt.xlabel('x label')
+    plt.ylabel('y label')
+
+    plt.title("Simple Plot")
+
+    plt.legend()
+
+    plt.show()
+
+
 if __name__ == "__main__":
     trainData, testData = createData()
 
@@ -107,6 +127,7 @@ if __name__ == "__main__":
         final = test(best)
 
         if final == 100 or final == 0:
+            plot(best)
             print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
             manData = input("> ")
             while manData:
