@@ -35,7 +35,7 @@ class neuron:
 def train():
     perfectNotFount = True
     run = 0
-    bestPer= 0
+    bestPer= [0,0]
     while perfectNotFount:
         numlayers = random.randint(2, config['initinputLength'])
         neuroninlayer = [random.randint(2, config['initinputLength']+1) for i in range(numlayers - 1)]
@@ -57,9 +57,11 @@ def train():
             print(f'correct: {percent}%, after {run} tries, {numlayers-1} hidden layers and setup like {neuroninlayer}')
             perfectNotFount = False
             return layers
-        elif percent > bestPer:
-            bestPer=percent
-        print(f'run num: {run} correct: {percent}% top: {bestPer}%', end="\r")
+        elif percent > bestPer[0]:
+            bestPer=[percent,1]
+        elif percent == bestPer[0]:
+            bestPer[1] += 1
+        print(f'run num: {run} correct: {percent}% top: {bestPer[0]}%, gotten {bestPer[1]} times', end="\r")
         run += 1
 
 def network(datas, layers):
