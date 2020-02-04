@@ -8,7 +8,7 @@ import tkinter as tk
 config = {
     # 'layers': 2,
     # 'neuroninlayer': [3, 1],
-    'initinputLength': 4,
+    'initinputLength': 5,
 }
 
 class neuron:
@@ -37,7 +37,7 @@ def train():
     run = 0
     while perfectNotFount:
         numlayers = random.randint(2, config['initinputLength'])
-        neuroninlayer = [random.randint(2, config['initinputLength']) for i in range(numlayers - 1)]
+        neuroninlayer = [random.randint(2, config['initinputLength']+1) for i in range(numlayers - 1)]
         neuroninlayer.append(1)
         # print(f'{numlayers-1} hidden layers and setup like {neuroninlayer}')
         layers = []
@@ -115,24 +115,28 @@ def plot(network):
     # w.create_line(0, 50, 50, 50, fill="black")
     network.insert(0, range(config['initinputLength']))
     for layer in range(len(network)):
+        totalNerons = len(network[layer])
         for neron in range(len(network[layer])):
-            totalNerons = len(network[layer])
             distance = canvas_height/(config['initinputLength']*2-totalNerons+1)
+            colour = colour = "#"+''.join([hex(random.randint(15, 255))[2:] for i in range(3)])
             x = int(((layer+1)/(len(network)+1))*canvas_width)+10
             y = int( (canvas_height/2) +((-1)**(neron+1)) *distance*(int((neron+1+((totalNerons+1) % 2))/2) ))
             #print(f"x: {x}, y:{y}, distance: {distance}")
-            circle(w, x,  y, 10)
             if layer > 0:
+                radius = network[layer][neron].sig(network[layer][neron].bias)*10+5
                 for input in range(len(network[layer-1])):
                     weight = network[layer][neron].sig(network[layer][neron].weights[input])
                     distance2 = canvas_height/(config['initinputLength']*2-len(network[layer-1])+1)
                     x2 = int(((layer)/(len(network)+1))*canvas_width)+10
                     y2 = int( (canvas_height/2) +((-1)**(input+1)) *distance2*(int((input+1+((len(network[layer-1])+1) % 2))/2) ))
-                    w.create_line(x2,y2,x,y, width = weight*10)
+                    w.create_line(x2,y2,x,y, width = weight*10, fill=colour)
+            else:
+                radius = 10
+            circle(w, x,  y, radius, colour)
     tk.mainloop()
 
-def circle(canvas,x,y, r):
-   id = canvas.create_oval(x-r,y-r,x+r,y+r, fill="black")
+def circle(canvas,x,y, r, colour):
+   id = canvas.create_oval(x-r,y-r,x+r,y+r, fill=colour)
    return id
 
 if __name__ == "__main__":
