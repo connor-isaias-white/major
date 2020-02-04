@@ -84,7 +84,7 @@ def putInNetwork(input, layers):
 
 
 def test(best):
-    final = network(trainData, best)
+    final = network(testData, best)
     print(f"testing score: {final}%")
     return final
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     if best != 0:
         final = test(best)
 
-        if final == 100 or final == 0:
+        if final >= 95 or final == 0:
             plot(best)
             '''print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
             manData = input("> ")
