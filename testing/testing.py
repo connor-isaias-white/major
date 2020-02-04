@@ -36,6 +36,7 @@ def train():
     perfectNotFount = True
     run = 0
     while perfectNotFount:
+        print(f'run num: {run}', end="\r")
         numlayers = random.randint(2, config['initinputLength'])
         neuroninlayer = [random.randint(2, config['initinputLength']+1) for i in range(numlayers - 1)]
         neuroninlayer.append(1)
