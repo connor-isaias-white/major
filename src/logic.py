@@ -3,6 +3,8 @@ from src.player import player
 from config import config
 import time
 
+
+# the game logic that runs everything
 class logic:
     def __init__(self, display):
         self.display = display
@@ -16,11 +18,14 @@ class logic:
         while self.running:
             self.events()
 
+            #decide moves
             self.seaker.decide(self.hider.pos)
             self.hider.draw((0,0,255))
             # self.hider.decide(self.seaker.pos)
+            #check wins
             self.checkwin()
 
+            # update time and display
             pygame.display.update()
             clock.tick(config['screen']['fps'])
 
@@ -37,7 +42,7 @@ class logic:
 
     def checkwin(self):
         maxFrames = 6000
-
+        # check wins and count frames untill win condition
         winner = "none"
         frames = int((time.time() - self.startTime)*config["screen"]["fps"])
         self.seaker.score = 1-frames/maxFrames

@@ -1,13 +1,14 @@
 import random
 import math
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pandas
+import tkinter as tk
 
 config = {
     # 'layers': 2,
     # 'neuroninlayer': [3, 1],
-    'initinputLength': 3,
+    'initinputLength': 4,
 }
 
 class neuron:
@@ -103,21 +104,36 @@ def createData():
 
 
 def plot(network):
-    print(network)
-    b = np.matrix([[1,1,2],[3,5,4]])
-    b_asarray = np.asarray(b)
-    print(b_asarray)
-    plt.plot(b_asarray[0], b_asarray[1], label='network',marker= 'o')
+    master = tk.Tk()
 
-    plt.xlabel('x label')
-    plt.ylabel('y label')
+    canvas_width = 720
+    canvas_height = 720
+    w = tk.Canvas(master,
+               width=canvas_width,
+               height=canvas_height)
+    w.pack()
+    # w.create_line(0, 50, 50, 50, fill="black")
+    network.insert(0, range(config['initinputLength']))
+    for layer in range(len(network)):
+        for neron in range(len(network[layer])):
+            totalNerons = len(network[layer])
+            distance = canvas_height/(config['initinputLength']*2-totalNerons+1)
+            x = int(((layer+1)/(len(network)+1))*canvas_width)+10
+            y = int( (canvas_height/2) +((-1)**(neron+1)) *distance*(int((neron+1+((totalNerons+1) % 2))/2) ))
+            #print(f"x: {x}, y:{y}, distance: {distance}")
+            circle(w, x,  y, 10)
+            if layer > 0:
+                for input in range(len(network[layer-1])):
+                    weight = network[layer][neron].sig(network[layer][neron].weights[input])
+                    distance2 = canvas_height/(config['initinputLength']*2-len(network[layer-1])+1)
+                    x2 = int(((layer)/(len(network)+1))*canvas_width)+10
+                    y2 = int( (canvas_height/2) +((-1)**(input+1)) *distance2*(int((input+1+((len(network[layer-1])+1) % 2))/2) ))
+                    w.create_line(x2,y2,x,y, width = weight*10)
+    tk.mainloop()
 
-    plt.title("Simple Plot")
-
-    plt.legend()
-
-    plt.show()
-
+def circle(canvas,x,y, r):
+   id = canvas.create_oval(x-r,y-r,x+r,y+r, fill="black")
+   return id
 
 if __name__ == "__main__":
     trainData, testData = createData()
@@ -128,7 +144,7 @@ if __name__ == "__main__":
 
         if final == 100 or final == 0:
             plot(best)
-            print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
+            '''print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
             manData = input("> ")
             while manData:
                 manData = manData.replace(" ", '').split(",")
@@ -138,4 +154,4 @@ if __name__ == "__main__":
                     print("at least 2 adjacent 1s")
                 else:
                     print("No adjacent 1s")
-                manData = input("> ")
+                manData = input("> ")'''
