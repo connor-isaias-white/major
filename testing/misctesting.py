@@ -1,2 +1,7 @@
-import random
-colour = "#"+''.join([hex(random.randint(15, 255))[2:] for i in range(3)])
+class test:
+    def __init__(self):
+        self.hi = 1
+
+testers = [i for i in range(20)]
+
+print(testers[1:])

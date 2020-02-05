@@ -8,16 +8,23 @@ import tkinter as tk
 config = {
     # 'layers': 2,
     # 'neuroninlayer': [3, 1],
-    'initinputLength': 5,
+    'initinputLength': 6,
 }
 
 class Network:
-    def __init__(self):
+    def __init__(self, pos, *argv, **kwargs):
+        self.pos = pos
         self.numlayers = random.randint(2, config['initinputLength'])
         self.neuroninlayer = [random.randint(2, config['initinputLength']+1) for i in range(self.numlayers - 1)]
         self.neuroninlayer.append(1)
         self.layers = []
-        self.createNetwork()
+        self.fitness = 0
+        self.childrenMade = 0
+        if len(kwargs) is not 0:
+            self.layers = kwargs['layers']
+        else:
+            self.createNetwork()
+
 
     def createNetwork(self):
         for hiddenlayer in range(self.numlayers):
@@ -29,6 +36,58 @@ class Network:
                     inputLength = config['initinputLength']
                 layer.append(neuron(neuro,inputLength))
             self.layers.append(layer)
+
+    def createChild(self, pos, rate, chance):
+        child = self.mutateBaby(Network(pos, layers=self.layers), rate, chance)
+
+        self.childrenMade += 1
+        return child
+
+    def mutateBaby(self, baby, rate, chance):
+        for layer in baby.layers:
+            for neuron in layer:
+                if random.random() < chance:
+                    neuron.bias += rate*random.uniform(-1,1)
+                    neuron.bias = self.keepInRange(neuron.bias)
+                for weight in range(len(neuron.weights)):
+                    if random.random() < chance:
+                        neuron.weights[weight] += rate*random.uniform(-1,1)
+                        neuron.weights[weight] = self.keepInRange(neuron.weights[weight])
+    def keepInRange(self, value):
+        if value > 6:
+            value = 6
+        elif value < -6:
+            value = -6
+        return value
+
+
+class generation:
+    def __init__(self, num):
+        self.popSize = num
+        self.gen = [Network(net) for net in range(num)]
+        self.genNum = 0
+
+    def fittest(self, champion, rate, chance):
+        #champion remains unchanged
+        total = 0
+        print(f"1: {champion.layers[0][0].bias}")
+        for net in self.gen:
+            total += net.fitness
+        newGen = [self.pickParrent(total, i, champion, rate, chance) for i in range(self.popSize-1)]
+        self.gen = newGen
+        self.gen.insert(0, champion)
+        print(f"2: {self.gen[0].layers[0][0].bias}")
+        self.genNum +=1
+
+    def pickParrent(self, total, num, champion, rate, chance):
+        rand = random.randint(0, total)
+        runningSum = 0
+        for net in self.gen:
+            runningSum += net.fitness
+            if runningSum > rand:
+                return net.createChild(num, rate, chance)
+        print("no")
+
 
 
 class neuron:
@@ -49,6 +108,7 @@ class neuron:
 
 
     def sig(self, x):
+        #print(x)
         y = 1/(1+math.exp(-x))
         return y
 
@@ -56,21 +116,25 @@ def train():
     perfectNotFount = True
     run = 0
     bestPer= [0,0]
+    gen = generation(1000)
     while perfectNotFount:
-        newNetwork = Network()
-        percent = network(trainData, newNetwork.layers)
-        if percent == 100 or percent ==0:
-            print(f'correct: {percent}%, after {run} tries, {newNetwork.numlayers-1} hidden layers and setup like {newNetwork.neuroninlayer}')
-            testResults = test(newNetwork)
-            if testResults == 100 or testResults== 0:
-                perfectNotFount = False
-                return newNetwork
-        elif percent > bestPer[0]:
-            bestPer=[percent,1]
-        elif percent == bestPer[0]:
-            bestPer[1] += 1
-        print(f'run num: {run} correct: {percent}% top: {bestPer[0]}%, gotten {bestPer[1]} times', end="\r")
-        run += 1
+        for net in gen.gen:
+            percent, raw = network(trainData, net.layers)
+            net.fitness = raw**4
+
+            if percent == 100 or percent ==0:
+                print(f'correct: {percent}%, after {run} tries, generation: {gen.genNum} {net.numlayers-1} hidden layers and setup like {newNetwork.neuroninlayer}')
+                testResults = test(net)
+                if testResults == 100 or testResults== 0:
+                    perfectNotFount = False
+                    return net
+            elif percent > bestPer[0]:
+                bestPer=[percent,1, net]
+            elif percent == bestPer[0]:
+                bestPer=[percent,bestPer[1] + 1, net]
+            print(f'run num: {run} generation: {gen.genNum} correct: {percent}% genAv:  top: {bestPer[0]}%, gotten {bestPer[1]} time(s), champ made {bestPer[2].childrenMade} children', end="\r")
+            run += 1
+        gen.fittest(bestPer[2], 1, 1)
 
 def network(datas, layers):
     score = 0
@@ -79,9 +143,10 @@ def network(datas, layers):
         if round(guess[0]) == data[1]:
             score += 1
     percent = round(score/len(datas)*100)
-    return percent
+    return percent, score
 
 def putInNetwork(input, layers):
+    #print(len(layers))
     for layer in layers:
         output = []
         for nero in layer:
@@ -119,7 +184,7 @@ def createData():
 
 def plot(network):
     master = tk.Tk()
-    network = network.layers
+    NN = network.layers
     canvas_width = 720
     canvas_height = 720
     w = tk.Canvas(master,
@@ -127,26 +192,27 @@ def plot(network):
                height=canvas_height)
     w.pack()
     # w.create_line(0, 50, 50, 50, fill="black")
-    network.insert(0, range(config['initinputLength']))
-    for layer in range(len(network)):
-        totalNerons = len(network[layer])
-        for neron in range(len(network[layer])):
+    NN.insert(0, range(config['initinputLength']))
+    for layer in range(len(NN)):
+        totalNerons = len(NN[layer])
+        for neron in range(len(NN[layer])):
             distance = canvas_height/(config['initinputLength']*3-totalNerons+1)
-            colour = colour = "#"+''.join([hex(random.randint(15, 255))[2:] for i in range(3)])
-            x = int(((layer+1)/(len(network)+1))*canvas_width)+10
+            colour = colour = "#"+''.join([hex(random.randint(16, 255))[2:] for i in range(3)])
+            x = int(((layer+1)/(len(NN)+1))*canvas_width)+10
             y = int( (canvas_height/2) +((-1)**(neron+1)) *distance*(int((neron+1+((totalNerons+1) % 2))/2) ))
             #print(f"x: {x}, y:{y}, distance: {distance}")
             if layer > 0:
-                radius = network[layer][neron].sig(network[layer][neron].bias)*10+5
-                for input in range(len(network[layer-1])):
-                    weight = network[layer][neron].sig(network[layer][neron].weights[input])
-                    distance2 = canvas_height/(config['initinputLength']*3-len(network[layer-1])+1)
-                    x2 = int(((layer)/(len(network)+1))*canvas_width)+10
-                    y2 = int( (canvas_height/2) +((-1)**(input+1)) *distance2*(int((input+1+((len(network[layer-1])+1) % 2))/2) ))
+                radius = NN[layer][neron].sig(NN[layer][neron].bias)*10+5
+                for input in range(len(NN[layer-1])):
+                    weight = NN[layer][neron].sig(NN[layer][neron].weights[input])
+                    distance2 = canvas_height/(config['initinputLength']*3-len(NN[layer-1])+1)
+                    x2 = int(((layer)/(len(NN)+1))*canvas_width)+10
+                    y2 = int( (canvas_height/2) +((-1)**(input+1)) *distance2*(int((input+1+((len(NN[layer-1])+1) % 2))/2) ))
                     w.create_line(x2,y2,x,y, width = weight*10, fill=colour)
             else:
                 radius = 10
             circle(w, x,  y, radius, colour)
+    network.layers = NN[1:]
     tk.mainloop()
 
 def circle(canvas,x,y, r, colour):
