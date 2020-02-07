@@ -9,14 +9,14 @@ import tkinter as tk
 config = {
     # 'layers': 2,
     # 'neuroninlayer': [3, 1],
-    'initinputLength': 7,
+    'initinputLength': 8,
 }
 
 class Network:
     def __init__(self, pos, *argv, **kwargs):
         self.pos = pos
-        self.numlayers = random.randint(2, config['initinputLength'])
-        self.neuroninlayer = [random.randint(2, config['initinputLength']+1) for i in range(self.numlayers - 1)]
+        self.numlayers = 2#random.randint(2, config['initinputLength'])
+        self.neuroninlayer = [config["initinputLength"]-1]#[random.randint(2, config['initinputLength']+1) for i in range(self.numlayers - 1)]
         self.neuroninlayer.append(1)
         self.layers = []
         self.fitness = 0
@@ -60,9 +60,6 @@ class Network:
 
         for layer in baby.layers:
             for neuron in layer:
-                if random.random() < chance:
-                    neuron.bias += rate*random.uniform(-1,1)
-                    neuron.bias = self.keepInRange(neuron.bias)
                 for weight in range(len(neuron.weights)):
                     if random.random() < chance:
                         neuron.weights[weight] += rate*random.uniform(-1,1)
@@ -109,7 +106,7 @@ class generation:
 class neuron:
 
     def __init__(self, pos, inputLength):
-        self.bias = random.uniform(-6, 6)
+        self.bias = 1
         self.pos = pos
         self.weights = [random.uniform(-6, 6) for i in range(inputLength)]
 
@@ -132,14 +129,14 @@ def train():
     perfectNotFount = True
     run = 0
     bestPer= [0,0]
-    gen = generation(1000)
+    gen = generation(100)
     while perfectNotFount:
         for net in gen.gen:
             percent, raw = network(trainData, net.layers)
             net.fitness = raw**7
 
             if percent == 100 or percent ==0:
-                print(f'correct: {round(percent)}%, after {run} tries, generation: {gen.genNum} {net.numlayers-1} hidden layers and setup like {net.neuroninlayer}')
+                print(f'\ncorrect: {round(percent)}%, after {run} tries, generation: {gen.genNum} {net.numlayers-1} hidden layers and setup like {net.neuroninlayer}', end = '\r')
                 testResults = test(net)[0]
                 if testResults == 100 or testResults== 0:
                     perfectNotFount = False
@@ -152,7 +149,7 @@ def train():
             gen.genAv = (gen.genAv*(run % len(gen.gen))+percent)/((run % len(gen.gen))+1)
             print(f'run num: {run} generation: {gen.genNum} correct: {round(percent)}% genAv: {round(gen.genAv)}% top: {round(bestPer[0])}%, gotten {bestPer[1]} time(s), champ made {bestPer[2].childrenMade} children', end="\r")
             run += 1
-        gen.fittest(bestPer[2], 0.5, 0.5)
+        gen.fittest(bestPer[2], 0.8, 0.8)
 
 def network(datas, layers):
     score = 0
@@ -176,7 +173,7 @@ def putInNetwork(input, layers):
 
 def test(best):
     final = network(testData, best.layers)
-    print(f"testing score: {round(final[0])}%")
+    print(f"\ntesting score: {round(final[0])}%", end="\n")
     return final
 
 def createData():
