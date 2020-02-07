@@ -60,6 +60,9 @@ class Network:
 
         for layer in baby.layers:
             for neuron in layer:
+                if random.random() < chance:
+                    neuron.bias += rate*random.uniform(-1,1)
+                    neuron.bias = self.keepInRange(neuron.bias)
                 for weight in range(len(neuron.weights)):
                     if random.random() < chance:
                         neuron.weights[weight] += rate*random.uniform(-1,1)
@@ -106,7 +109,7 @@ class generation:
 class neuron:
 
     def __init__(self, pos, inputLength):
-        self.bias = 1
+        self.bias = random.uniform(-6, 6)
         self.pos = pos
         self.weights = [random.uniform(-6, 6) for i in range(inputLength)]
 
@@ -149,7 +152,7 @@ def train():
             gen.genAv = (gen.genAv*(run % len(gen.gen))+percent)/((run % len(gen.gen))+1)
             print(f'run num: {run} generation: {gen.genNum} correct: {round(percent)}% genAv: {round(gen.genAv)}% top: {round(bestPer[0])}%, gotten {bestPer[1]} time(s), champ made {bestPer[2].childrenMade} children', end="\r")
             run += 1
-        gen.fittest(bestPer[2], 0.8, 0.8)
+        gen.fittest(bestPer[2], 0.6, 0.6)
 
 def network(datas, layers):
     score = 0
@@ -173,7 +176,7 @@ def putInNetwork(input, layers):
 
 def test(best):
     final = network(testData, best.layers)
-    print(f"\ntesting score: {round(final[0])}%", end="\n")
+    print(f"\ntesting score: {round(final[0])}%", end="\r")
     return final
 
 def createData():
