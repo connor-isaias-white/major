@@ -3,12 +3,13 @@ import math
 # import matplotlib.pyplot as plt
 # import numpy as np
 # import pandas
+import copy
 import tkinter as tk
 
 config = {
     # 'layers': 2,
     # 'neuroninlayer': [3, 1],
-    'initinputLength': 6,
+    'initinputLength': 7,
 }
 
 class Network:
@@ -21,7 +22,10 @@ class Network:
         self.fitness = 0
         self.childrenMade = 0
         if len(kwargs) is not 0:
-            self.layers = kwargs['layers']
+            #print(id(kwargs['layers']))
+            #print(id(self.layers))
+            self.layers = copy.deepcopy(kwargs['layers'])
+            #print(id(self.layers))
         else:
             self.createNetwork()
 
@@ -38,12 +42,22 @@ class Network:
             self.layers.append(layer)
 
     def createChild(self, pos, rate, chance):
-        child = self.mutateBaby(Network(pos, layers=self.layers), rate, chance)
+        copyChild = Network(pos, layers=self.layers)
+        #print(f"1: {copyChild.layers == net.layers}")
+        newChild = self.mutateBaby(copyChild, rate, chance)
+        #print(f"2: {newChild.layers == net.layers}")
+        self.childrenMade +=1
+        return newChild
 
-        self.childrenMade += 1
-        return child
+    def keepInRange(self, value):
+        if value > 6:
+            value = 6
+        elif value < -6:
+            value = -6
+        return value
 
     def mutateBaby(self, baby, rate, chance):
+
         for layer in baby.layers:
             for neuron in layer:
                 if random.random() < chance:
@@ -53,12 +67,9 @@ class Network:
                     if random.random() < chance:
                         neuron.weights[weight] += rate*random.uniform(-1,1)
                         neuron.weights[weight] = self.keepInRange(neuron.weights[weight])
-    def keepInRange(self, value):
-        if value > 6:
-            value = 6
-        elif value < -6:
-            value = -6
-        return value
+        return baby
+
+
 
 
 class generation:
@@ -66,18 +77,22 @@ class generation:
         self.popSize = num
         self.gen = [Network(net) for net in range(num)]
         self.genNum = 0
+        self.genAv = 0
 
     def fittest(self, champion, rate, chance):
         #champion remains unchanged
         total = 0
-        print(f"1: {champion.layers[0][0].bias}")
+        # print(champion)
+        # print(f"1: {champion.layers[0][0].bias}")
         for net in self.gen:
             total += net.fitness
         newGen = [self.pickParrent(total, i, champion, rate, chance) for i in range(self.popSize-1)]
         self.gen = newGen
+        # print(champion)
+        # print(f"3: {champion.layers[0][0].bias}")
         self.gen.insert(0, champion)
-        print(f"2: {self.gen[0].layers[0][0].bias}")
         self.genNum +=1
+        self.genAv = 0
 
     def pickParrent(self, total, num, champion, rate, chance):
         rand = random.randint(0, total)
@@ -85,6 +100,7 @@ class generation:
         for net in self.gen:
             runningSum += net.fitness
             if runningSum > rand:
+                #print(f"2: {champion.layers[0][0].bias}")
                 return net.createChild(num, rate, chance)
         print("no")
 
@@ -120,21 +136,23 @@ def train():
     while perfectNotFount:
         for net in gen.gen:
             percent, raw = network(trainData, net.layers)
-            net.fitness = raw**4
+            net.fitness = raw**7
 
             if percent == 100 or percent ==0:
-                print(f'correct: {percent}%, after {run} tries, generation: {gen.genNum} {net.numlayers-1} hidden layers and setup like {newNetwork.neuroninlayer}')
-                testResults = test(net)
+                print(f'correct: {round(percent)}%, after {run} tries, generation: {gen.genNum} {net.numlayers-1} hidden layers and setup like {net.neuroninlayer}')
+                testResults = test(net)[0]
                 if testResults == 100 or testResults== 0:
                     perfectNotFount = False
                     return net
-            elif percent > bestPer[0]:
+            if percent > bestPer[0]:
                 bestPer=[percent,1, net]
             elif percent == bestPer[0]:
                 bestPer=[percent,bestPer[1] + 1, net]
-            print(f'run num: {run} generation: {gen.genNum} correct: {percent}% genAv:  top: {bestPer[0]}%, gotten {bestPer[1]} time(s), champ made {bestPer[2].childrenMade} children', end="\r")
+
+            gen.genAv = (gen.genAv*(run % len(gen.gen))+percent)/((run % len(gen.gen))+1)
+            print(f'run num: {run} generation: {gen.genNum} correct: {round(percent)}% genAv: {round(gen.genAv)}% top: {round(bestPer[0])}%, gotten {bestPer[1]} time(s), champ made {bestPer[2].childrenMade} children', end="\r")
             run += 1
-        gen.fittest(bestPer[2], 1, 1)
+        gen.fittest(bestPer[2], 0.5, 0.5)
 
 def network(datas, layers):
     score = 0
@@ -142,7 +160,7 @@ def network(datas, layers):
         guess = putInNetwork(data[0], layers)
         if round(guess[0]) == data[1]:
             score += 1
-    percent = round(score/len(datas)*100)
+    percent = score/len(datas)*100
     return percent, score
 
 def putInNetwork(input, layers):
@@ -158,7 +176,7 @@ def putInNetwork(input, layers):
 
 def test(best):
     final = network(testData, best.layers)
-    print(f"testing score: {final}%")
+    print(f"testing score: {round(final[0])}%")
     return final
 
 def createData():
