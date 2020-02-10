@@ -49,11 +49,11 @@ class Network:
         self.childrenMade +=1
         return newChild
 
-    def keepInRange(self, value):
-        if value > 6:
-            value = 6
-        elif value < -6:
-            value = -6
+    def keepInRange(self, value, magnitude):
+        if value > magnitude:
+            value = magnitude
+        elif value < -magnitude:
+            value = -magnitude
         return value
 
     def mutateBaby(self, baby, rate, chance):
@@ -62,11 +62,11 @@ class Network:
             for neuron in layer:
                 if random.random() < chance:
                     neuron.bias += rate*random.uniform(-1,1)
-                    neuron.bias = self.keepInRange(neuron.bias)
+                    neuron.bias = self.keepInRange(neuron.bias, 1)
                 for weight in range(len(neuron.weights)):
                     if random.random() < chance:
                         neuron.weights[weight] += rate*random.uniform(-1,1)
-                        neuron.weights[weight] = self.keepInRange(neuron.weights[weight])
+                        neuron.weights[weight] = self.keepInRange(neuron.weights[weight], 1)
         return baby
 
 
@@ -109,9 +109,9 @@ class generation:
 class neuron:
 
     def __init__(self, pos, inputLength):
-        self.bias = random.uniform(-6, 6)
+        self.bias = random.uniform(-1, 1)
         self.pos = pos
-        self.weights = [random.uniform(-6, 6) for i in range(inputLength)]
+        self.weights = [random.uniform(-1, 1) for i in range(inputLength)]
 
     def value(self, layer):
         val = self.bias
@@ -152,7 +152,7 @@ def train():
             gen.genAv = (gen.genAv*(run % len(gen.gen))+percent)/((run % len(gen.gen))+1)
             print(f'run num: {run} generation: {gen.genNum} correct: {round(percent)}% genAv: {round(gen.genAv)}% top: {round(bestPer[0])}%, gotten {bestPer[1]} time(s), champ made {bestPer[2].childrenMade} children', end="\r")
             run += 1
-        gen.fittest(bestPer[2], 0.6, 0.6)
+        gen.fittest(bestPer[2], 0.1, 0.6)
 
 def network(datas, layers):
     score = 0
