@@ -1,5 +1,6 @@
 import random
 import math
+import tkinter as tk
 
 config = {
         "width": 255,
@@ -44,13 +45,28 @@ def createData(num):
     return data
 
 def train(trainData):
-    percy = perceptron(0.5)
-    for point in trainData:
-        correct = percy.guess(point)
-        print(correct)
+    percy = perceptron(0.1)
+    for i in range(100):
+        total = 0
+        for point in trainData:
+            correct = percy.guess(point)
+            if correct:
+                total += 1
+        print(f"{total/len(trainData)}%")
 
+def drawPoints(points):
+    master = tk.Tk()
+    w = tk.Canvas(master, width=config["width"], height=config["height"])
+    w.pack()
+    for point in points:
+        circle(w, round(point[0][0]*config["width"]), round(point[0][1]*config["height"]), 5)
+    tk.mainloop()
 
+def circle(canvas, x,y,r):
+    id = canvas.create_oval(x-r,y-r,x+r,y+r, fill="#000000")
+    return id
 
 if __name__ == "__main__":
     trainData = createData(255)
-    train(trainData)
+    drawPoints(trainData)
+    # train(trainData)
