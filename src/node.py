@@ -1,28 +1,36 @@
 import random
-import math
 import numpy as np
+import src.actives as acv
 
 class node:
-    def __init__(self, numInputs, learnRate):
-        self.weights = [random.random() for i in range(numInputs+1)]
-        self.learnRate = learnRate
-        self.val = 0
+    def __init__(self, name):
+        self.name = name
 
-    def output(self, input):
-        self.val = self.sig(np.dot(input, np.array(self.weights))+self.bias)
-        return self.val
-
-    def sig(self, x):
-        y = 1/(math.e(-x)+1)
-        return y
-    
-    def learn(self, ans, input):
-        error = ans - self.output(input)
-        for i in range(len(self.weights)):
-            self.weights[i] += error*input[i]*self.learnRate
+    def output(self, inputs):
+        out = acv.tanh(self.weights.dot(np.squeeze(inputs)))
+        self.val = out
+        return out
 
 class bias(node):
-    def __init__(self):
+    def __init__(self, numInputs):
         self.val = 1
-        return super().__init__(0, 0)
+        self.weights = np.array([0 for i in range(numInputs)]+[255])
+        return super().__init__("bias")
 
+    def learn(self, *args):
+        pass
+
+class neuron(node):
+    def __init__(self, numInputs, learnRate, val=0):
+        self.weights=np.array([random.random() for i in range(numInputs+1)])
+        self.learnRate = learnRate
+        self.val = val
+        return super().__init__("neuron")
+    
+    def learn(self, ans, inputs):
+        #print(inputs)
+        error = ans - self.output(inputs)
+        #print(error)
+        for i in range(len(self.weights)):
+            #print(error*inputs[i,0]*self.learnRate)
+            self.weights[i] += error*inputs[i,0]*self.learnRate
