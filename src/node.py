@@ -27,10 +27,11 @@ class neuron(node):
         self.val = val
         return super().__init__("neuron")
     
-    def learn(self, ans, inputs):
-        #print(inputs)
-        error = ans - self.output(inputs)
-        #print(error)
+    def learn(self, inputs, grad):
+        #print(f"inputs:\n{inputs}")
+        print(grad)
         for i in range(len(self.weights)):
             #print(error*inputs[i,0]*self.learnRate)
-            self.weights[i] += error*inputs[i,0]*self.learnRate
+            #print(grad[i]*inputs[i,0]*self.learnRate)
+            self.weights[i] += grad[i]*self.learnRate
+

@@ -6,6 +6,10 @@ def sig(x):
     y =1/(np.exp(-x)+1)
     return y
 
+def dSig(x):
+    y = sig(x)*(1-sig(x))
+    return y
+
 # Hyperbolic Tangent
 def tanh(x):
     y = (1-np.exp(-2*x))/(1+np.exp(-2*x)) 
@@ -27,6 +31,14 @@ def LeReLu(x, a):
             y=x
         else:
             y=a*x
+    return y
+
+# derivative of leaky relu
+def dLeReLu(x, a):
+    if x<0:
+        y=a
+    else:
+        y=1
     return y
 
 # Rectified Linear units
