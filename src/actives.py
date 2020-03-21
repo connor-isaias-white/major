@@ -10,16 +10,21 @@ def dSig(x):
     y = sig(x)*(1-sig(x))
     return y
 
+#reverse sigmoid
+def rSig(y):
+    x = np.log(y/(1-y))
+    return x
+
 # Hyperbolic Tangent
 def tanh(x):
-    y = (1-np.exp(-2*x))/(1+np.exp(-2*x)) 
+    y = (1-np.exp(-2*x))/(1+np.exp(-2*x))
     return y
 
 # Leaky Rectified Linear units
 def LeReLu(x, a):
     if type(x)== np.ndarray:
         y = []
-        for i in x:    
+        for i in x:
             if i<0:
                 i = i*a
             else:
