@@ -1,12 +1,13 @@
 from src.node import neuron, bias
 import numpy as np
 import src.actives as acv
+import time
 
 class network:
     def __init__(self, inputLayer, hiddenLayer, outputLayer, learnRate=0.1, bias=True, batch=20, actFun="sig"):
         #set activation functions
         if actFun == "sig":
-            self.act = lambda x: acv.sig(x)
+            self.act = lambda x: acv.sig(x, a=1)
             self.dAct = lambda x: acv.dSig(x)
             self.rAct = lambda y: acv.rSig(y)
             self.out = self.act
@@ -14,7 +15,7 @@ class network:
             self.act = lambda x: acv.LeReLu(x, 0.01)
             self.dAct = lambda x: acv.dLeReLu(x, 0.01)
             self.rAct = lambda y: acv.LeReLu(y, 100)
-            self.out = lambda x: acv.sig(x)
+            self.out = lambda x: acv.softmax(x)
 
         self.learnRate = learnRate
         self.network = []
@@ -78,52 +79,73 @@ class network:
 
     # This is very confusing maths that is hard to explain in a comment
     # To gain an understanding, watch https://www.youtube.com/watch?v=tIeHLnjs5U8
-    # currently quite inefficient
+    # currently extremely inefficient
     def backprop(self, expt):
-        cost = (self.outputs[-1][0][0] - expt)**2
+        startTime = time.time()
+        #print(f"backprop start time:{startTime}")
+        cost = sum([(self.outputs[-1][j][0] - expt[j])**2 for j in \
+                range(len(self.outputs[-1][0]))])
         nablaC = []
+        #midTime = time.time()-startTime
+        #print(f"backprop mid1 time:{midTime}s")
         for matrix in range(len(self.matrixes)):
             layeredImportance = []
-            #print(f"matrix pos:\n{matrix}")
-            #print(f"matrix :\n{self.matrixes[matrix]}")
-            #print(f"in:\n{self.inputs[matrix]}")
-            #print(f"out:\n{self.outputs[matrix]}")
             for node in range(len(self.matrixes[matrix])):
                 nodelImportance = []
                 # this is broken
                 for weight in range(len(self.matrixes[matrix][node])):
-                    #print(self.inputs)
-                    #print(matrix-1, weight)
-                    #print(self.inputs[matrix][weight])
-                    weightImportance = self.inputs[matrix][weight][0] * \
-                            self.dAct(self.outputs[matrix][node][0]) *\
-                            self.partCpartA(matrix+1, weight, expt)
-                    #print(f"weight:\n{self.matrixes[matrix][node][weight]}")
-                    #print(f"weight importance:\n{weightImportance}")
-                    #print(f"prev node:\n{self.inputs[matrix-1][weight][0]}")
-                    #print(f"d active:\n{acv.dSig(self.inputs[matrix][node])}")
-                    #print(f"CA:\n{self.partCpartA(matrix+1, weight, expt)}")
+                    #weightStart = time.time()
+                    ak = self.inputs[matrix][weight][0]
+                    #akTime = time.time()-weightStart
+                    #print(f"    ak time: {akTime}s")
+                    do = self.dAct(self.outputs[matrix][node][0])
+                    #doTime = time.time()-akTime-weightStart
+                    #print(f"    do time: {doTime}s")
+                    pcpa = self.partCpartA(matrix, node, expt)
+                    #pcpaTime = time.time() - doTime -akTime -weightStart
+                    #print(f"   pcpa time: {pcpaTime}s")
+                    weightImportance = ak*do*pcpa
                     nodelImportance.append(weightImportance)
+                    #print(f"  matrix: {matrix} node: {node} weight: {weight} done, time:{time.time() - weightStart}s")
                 layeredImportance.append(nodelImportance)
             nablaC.append(layeredImportance)
-        #print(f"nablaC: {nablaC}")
+        self.resetAC()
+        endTime = time.time() - startTime
+        #print(f"backprop end time:{endTime}s")
         return nablaC
 
     #partial c / parial a
-    def partCpartA(self, layer, weight, expt):
-        #print(self.matrixes)
-        #print(len(self.matrixes[layer][0]))
-        if layer == len(self.matrixes):
-            return 2*(self.outputs[-1][0][0]- expt)
+    #speed fix by saving them to the node
+    # they currently belive they change the bias
+    def partCpartA(self, layer, node, expt):
+        if layer == len(self.matrixes)-1:
+            return 2*(self.outputs[-1][node][0]- expt[node])
         else:
-            AC = [self.matrixes[layer][j][weight]* \
-                self.dAct(self.outputs[layer][j][0])* \
-                self.partCpartA(layer+1, weight, expt)
-                for j in range(len(self.matrixes[layer]))]
-            sumAC = sum(AC)
-            return sumAC
+            if self.network[layer][node].AC == 0:
+                AC = [self.matrixes[layer+1][j][node]* \
+                    self.dAct(self.rAct(self.outputs[layer+1][j][0]))* \
+                    self.partCpartA(layer+1, j, expt)
+                    for j in range(len(self.matrixes[layer+1]))]
+                sumAC = sum(AC)
+                self.network[layer][node].AC = sumAC
+                return sumAC
+            else:
+                return self.network[layer][node].AC
 
     def updateMatrix(self):
         matrixes = [np.resize(np.array([node.weights for node in layer]), (len(layer),len(layer[0].weights))) for layer in self.network]
         self.matrixes = matrixes
         return self.matrixes
+
+    def randomize(self):
+        for layer in self.network:
+            for node in layer:
+                for weight in node:
+                    weight = random.random()
+
+    def resetAC(self):
+        for layer in self.network:
+            for node in layer:
+                node.AC =0
+
+

@@ -25,6 +25,7 @@ class neuron(node):
         self.weights=np.array([random.random() for i in range(numInputs)])
         self.learnRate = learnRate
         self.val = val
+        self.AC = 0
         return super().__init__("neuron")
 
     def learn(self, inputs, grad):

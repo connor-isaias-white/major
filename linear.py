@@ -33,14 +33,16 @@ def train():
     guesses = []
     for point in trainData:
         guess = percy.guess(point[0])
+        print(guess, point[0])
         guesses.append(round(guess[0][0]) == point[1])
         #print(percy.matrixes)
-        percy.learn(point[1])
+        percy.learn([point[1]])
         if round(guess[0][0]) == point[1]:
             total+= 1
     percent = total/len(trainData)
     print(f'percent: {percent}', end='\r')
-    if percent == 1:
+    if percent >= 1.0:
+        print(percy.matrixes)
         running = False
     #line = ax.plot([0,1],[percy.guess(np.array([0,-1]))[0][0],percy.guess(np.array([0,1]))[0][0]],  c=[0,0,1])
     return percent, guesses
@@ -66,5 +68,5 @@ if __name__ == "__main__":
     trainData = createData(100)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    percy = network(len(trainData[0][0]),[3],1,batch =100, learnRate=1, actFun="LeReLu", bias=True)
+    percy = network(len(trainData[0][0]),[2],1,batch =20, learnRate=0.5, actFun="LeReLu", bias=True)
     draw(trainData)

@@ -2,8 +2,8 @@
 import numpy as np
 
 # Sigmiod
-def sig(x):
-    y =1/(np.exp(-x)+1)
+def sig(x, a=1):
+    y =1/(np.exp(-x*a)+1)
     return y
 
 def dSig(x):
@@ -60,4 +60,9 @@ def bi(x):
         y=1
     else:
         y=0
+    return y
+
+# Softmax where x is an array of outputs
+def softmax(x):
+    y = [np.exp(j)/sum(list(map(np.exp,x))) for j in x]
     return y
