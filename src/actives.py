@@ -64,5 +64,7 @@ def bi(x):
 
 # Softmax where x is an array of outputs
 def softmax(x):
-    y = [np.exp(j)/sum(list(map(np.exp,x))) for j in x]
+    #y = [(np.exp(j)/sum(list(map(np.exp,x))))[0] for j in x]
+    y = np.exp(x) / np.sum(np.exp(x), axis=0) 
+
     return y

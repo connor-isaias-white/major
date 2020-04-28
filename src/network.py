@@ -2,6 +2,7 @@ from src.node import neuron, bias
 import numpy as np
 import src.actives as acv
 import time
+import dill as pickle
 
 class network:
     def __init__(self, inputLayer, hiddenLayer, outputLayer, learnRate=0.1, bias=True, batch=20, actFun="sig"):
@@ -148,4 +149,11 @@ class network:
             for node in layer:
                 node.AC =0
 
+    def writeNetwork(self, path):
+        self.updateMatrix()
+        with open(path, "wb+") as f:
+            pickle.dump(self, f)
 
+    def readNetwork(self, path):
+        with open(path, "rb") as f:
+            self = pickle.load(f)

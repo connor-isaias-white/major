@@ -22,7 +22,7 @@ class bias(node):
 
 class neuron(node):
     def __init__(self, numInputs, learnRate, val=0):
-        self.weights=np.array([random.random() for i in range(numInputs)])
+        self.weights=np.array([random.uniform(-1,1) for i in range(numInputs)])
         self.learnRate = learnRate
         self.val = val
         self.AC = 0
