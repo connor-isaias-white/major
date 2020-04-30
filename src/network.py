@@ -68,7 +68,7 @@ class network:
                         self.aveNablaC[layer][node][deltaWeight] += nablaC[layer][node][deltaWeight]
         self.batchCount +=1
         #this is broken
-        if self.batchCount == self.batch:
+        if self.batchCount >= self.batch:
             for layer in range(len(self.network)):
                 for neuron in range(len(self.network[layer])):
                     for deltaWeight in range(len(self.aveNablaC[layer][neuron])):
@@ -154,6 +154,9 @@ class network:
         with open(path, "wb+") as f:
             pickle.dump(self, f)
 
-    def readNetwork(self, path):
+    @staticmethod
+    def readNetwork(path):
         with open(path, "rb") as f:
             self = pickle.load(f)
+        return self
+
