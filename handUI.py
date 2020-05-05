@@ -69,7 +69,7 @@ if __name__ == "__main__":
     draw = ImageDraw.Draw(image1)
     cv.bind('<1>', activate_paint)
     cv.pack(expand=YES, fill=BOTH)
-    btn_save = Button(text="save", command=imgData)
+    btn_save = Button(text="guess", command=imgData)
     btn_save.pack()
 
     root.mainloop()

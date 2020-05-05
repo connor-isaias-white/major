@@ -31,7 +31,12 @@ class neuron(node):
     def learn(self, inputs, grad):
         #print(f"inputs:\n{inputs}")
         #print(grad)
-        for i in range(len(self.weights)):
+        for weight in range(len(self.weights)):
             #print(error*inputs[i,0]*self.learnRate)
             #print(grad[i]*inputs[i,0]*self.learnRate)
-            self.weights[i] -= grad[i]*self.learnRate
+            self.weights[weight] -= grad[weight]*self.learnRate
+    def mutate(chance):
+        for weight in range(len(self.weights)):
+            if chance> random.random():
+                self.weights[weight] += random.uniform(-1,1)*self.learnRate
+

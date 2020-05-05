@@ -1,4 +1,4 @@
-from mnist import MNIST
+from mnist.loader import MNIST
 import random
 from src.network import network
 import numpy as np

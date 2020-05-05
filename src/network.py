@@ -1,9 +1,11 @@
 from src.node import neuron, bias
+from src.layer import layer # not implimented yet, should clean up my code
 import numpy as np
 import src.actives as acv
 import time
 import dill as pickle
 
+# TODO: cleanup code by fixing the nested list situation
 class network:
     def __init__(self, inputLayer, hiddenLayer, outputLayer, learnRate=0.1, bias=True, batch=20, actFun="sig"):
         #set activation functions
@@ -148,6 +150,11 @@ class network:
         for layer in self.network:
             for node in layer:
                 node.AC =0
+
+    def mutate(self, chance):
+        for layer in self.network:
+            for node in layer:
+                node.mutate(chance)
 
     def writeNetwork(self, path):
         self.updateMatrix()
