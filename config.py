@@ -1,6 +1,6 @@
 config = {
     "screen": {
-        "fps": 60,
+        "fps": 600,
         "caption": "hello world",
         "width": 500,
         "height": 500,
