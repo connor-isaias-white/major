@@ -7,19 +7,28 @@ import dill as pickle
 
 # TODO: cleanup code by fixing the nested list situation
 class network:
-    def __init__(self, inputLayer, hiddenLayer, outputLayer, learnRate=0.1, bias=True, batch=20, actFun="sig"):
+    def __init__(self, inputLayer, hiddenLayer, outputLayer, learnRate=0.1, bias=True, batch=128, actFun="sig", loss="mse", opt="gd"):
         #set activation functions
         if actFun == "sig":
             self.act = lambda x: acv.sig(x, a=1)
             self.dAct = lambda x: acv.dSig(x)
             self.rAct = lambda y: acv.rSig(y)
             self.out = self.act
-        if actFun == "LeReLu":
+        elif actFun == "LeReLu":
             self.act = lambda x: acv.LeReLu(x, 0.01)
             self.dAct = lambda x: acv.dLeReLu(x, 0.01)
             self.rAct = lambda y: acv.LeReLu(y, 100)
             self.out = lambda x: acv.softmax(x)
 
+        if loss == "mse":
+            self.loss = lambda outs, expt: sum([(outs[-1][i][0] - expt[i])**2 for i in range(len(expt))])
+            self.dloss = lambda outs, expt, node: 2*(outs[-1][node][0]- expt[node])
+        elif loss == "cel":
+            self.loss = lambda outs, expt: sum([-expt[i]*np.log(outs[-1][i][0]) for i in range(len(expt))])
+            self.dloss = lambda outs, expt, node: -expt[node]/(outs[-1][node][0])
+
+
+        self.cost = 1
         self.learnRate = learnRate
         self.network = []
         self.bias = bias
@@ -33,7 +42,7 @@ class network:
             #print(layer + self.bias)
             lastLen = layer + self.bias
             #print(self.network)
-        self.network.append([neuron(lastLen, self.learnRate) for i in range(outputLayer)])
+        self.network.append([neuron(lastLen, self.learnRate, optimizer=opt) for i in range(outputLayer)])
 
     def guess(self, inputs):
         self.inputs = []
@@ -51,6 +60,8 @@ class network:
             #print(f"b:\n{b.shape}\n{b.T}")
             a = self.act(b.dot(a))
             self.outputs.append(a)
+        #print("OUT TIME")
+        #print(self.rAct(a))
         a = self.out(self.rAct(a))
         self.outputs[-1] = a
         #print(f"guess: {a}")
@@ -75,7 +86,7 @@ class network:
                 for neuron in range(len(self.network[layer])):
                     for deltaWeight in range(len(self.aveNablaC[layer][neuron])):
                         self.aveNablaC[layer][neuron][deltaWeight] = self.aveNablaC[layer][neuron][deltaWeight]/self.batch
-                    self.network[layer][neuron].learn(self.inputs[layer], self.aveNablaC[layer][neuron])
+                    self.network[layer][neuron].learn(self.aveNablaC[layer][neuron])
             self.aveNablaC = []
             self.batchCount = 0
 
@@ -86,8 +97,7 @@ class network:
     def backprop(self, expt):
         startTime = time.time()
         #print(f"backprop start time:{startTime}")
-        cost = sum([(self.outputs[-1][j][0] - expt[j])**2 for j in \
-                range(len(self.outputs[-1][0]))])
+        self.cost = self.loss(self.outputs, expt)
         nablaC = []
         #midTime = time.time()-startTime
         #print(f"backprop mid1 time:{midTime}s")
@@ -122,7 +132,7 @@ class network:
     # they currently belive they change the bias
     def partCpartA(self, layer, node, expt):
         if layer == len(self.matrixes)-1:
-            return 2*(self.outputs[-1][node][0]- expt[node])
+            return self.dloss(self.outputs, expt, node)
         else:
             if self.network[layer][node].AC == 0:
                 AC = [self.matrixes[layer+1][j][node]* \
