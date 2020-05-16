@@ -57,37 +57,36 @@ def test(nn, images, labels):
     percentage = correct/len(images)
     return percentage
 
-def getNetwork(path, learnRate, batch, loss, opt, hiddenLayers):
+def getNetwork(path, learnRate, batch, loss, opt):
     if p.exists(path):
         print("Using previous found network\n")
         nn = network.readNetwork(path)
         nn.batch = batch
         nn.learnRate = learnRate
     else:
-        nn = network(784, hiddenLayers, 10, learnRate=learnRate, bias=True, batch=batch, actFun="LeReLu", opt=opt, loss=loss)
+        nn = network(784, [16,16], 10, learnRate=learnRate, bias=True, batch=batch, actFun="LeReLu", opt=opt, loss=loss)
     return nn
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 8:
+    random.seed(3)
+    if len(sys.argv) > 7:
         learnRate = float(sys.argv[1])
         batch = int(sys.argv[2])
         runs = int(sys.argv[3])
         loss = sys.argv[4]
         opt = sys.argv[5]
         io = sys.argv[6]
-        graph = bool(int(sys.argv[7]))
-        hiddenLayers = list(map(lambda x: int(x, ), sys.argv[8].split(",")))
+        graph = bool(sys.argv[7])
+
     else:
-        learnRate = 0.1
+        learnRate = 0.01
         batch = 128
         runs = 10
         loss = "mse"
         opt = "gd"
         io = "./neteorks/mnist.obj"
         graph = False
-        hiddenLayers = [16,16]
-
     print(f"learnRate: {learnRate}")
     print(f"batch: {batch}")
     print(f"runs: {runs}")
@@ -95,11 +94,10 @@ if __name__ == "__main__":
     print(f"optimizer: {opt}")
     print(f"io: {io}")
     print(f"graph: {graph}\n")
-    print(f"architecture: 784, {hiddenLayers}, 10")
     mndata = MNIST('./samples')
     trainImages, trainLabels = mndata.load_training()
 
-    convnn = getNetwork(io, learnRate, batch, loss,opt, hiddenLayers)
+    convnn = getNetwork(io, learnRate, batch, loss,opt)
     convnn = train(runs, convnn, trainImages, trainLabels, batch, graph)
     convnn.writeNetwork(io)
     print("training done")
