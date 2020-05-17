@@ -10,20 +10,23 @@ from datetime import timedelta
 from threading import Thread
 from src.network import network
 
-def graphing(graphData):
+def graphing(graphData, percentage):
     plt.close()
     plt.ion()
     plt.show()
-    plt.plot(range(len(graphData)), graphData)
+    plt.plot(range(len(graphData)), graphData, range(len(graphData)), percentage)
     plt.draw()
     plt.pause(0.00001)
 
 
 def train(runs, nn, images, labels, batch, graph):
     startTime = int(time())
-    epoch = 0
-    epochList = []
     aveCost = 0
+    epoch = 0
+    epochCorrect = 0
+    if graph:
+        epochList = []
+        epochPercentages = []
     for run in range(runs):
         correct = 0
         for image in range(len(images)):
@@ -35,13 +38,16 @@ def train(runs, nn, images, labels, batch, graph):
             nn.learn([0 if labels[image] != i else 1.0 for i in range(10)])
             if numguess == labels[image]:
                 correct +=1
+                epochCorrect += 1
             epoch += nn.cost
             if nn.batchCount == 0:
-                    aveCost = epoch/batch
-                    epoch = 0
+                aveCost = epoch/batch
+                if graph:
                     epochList.append(aveCost)
-                    if graph:
-                        graphing(epochList)
+                    epochPercentages.append(epochCorrect/batch)
+                    graphing(epochList, epochPercentages)
+                epoch = 0
+                epochCorrect = 0
             print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\r")
         print("\n")
     return nn
@@ -69,6 +75,7 @@ def getNetwork(path, learnRate, batch, loss, opt, hiddenLayers):
 
 
 if __name__ == "__main__":
+    random.seed=(5)
     if len(sys.argv) > 8:
         learnRate = float(sys.argv[1])
         batch = int(sys.argv[2])
@@ -84,7 +91,7 @@ if __name__ == "__main__":
         runs = 10
         loss = "mse"
         opt = "gd"
-        io = "./neteorks/mnist.obj"
+        io = "../networks/mnist.obj"
         graph = False
         hiddenLayers = [16,16]
 
@@ -94,8 +101,8 @@ if __name__ == "__main__":
     print(f"loss: {loss}")
     print(f"optimizer: {opt}")
     print(f"io: {io}")
-    print(f"graph: {graph}\n")
-    print(f"architecture: 784, {hiddenLayers}, 10")
+    print(f"graph: {graph}")
+    print(f"architecture: 784, {hiddenLayers}, 10\n")
     mndata = MNIST('./samples')
     trainImages, trainLabels = mndata.load_training()
 
