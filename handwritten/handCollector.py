@@ -6,7 +6,7 @@ import os
 import pickle
 import random
 
-''' a program for collecting hand data '''
+''' a program for collecting hand data so people can give me data'''
 motivationalMessages = ["Keep going!", "You can do it!", "You are on a roll!", "Great work!", "Keep it up!", "Thats the spirit!", "Come on!", "a little harder now!", \
         "You are doing great!", "Don't give up now", "Nice moves", "All right!", "Nice!", "Slam dunk!", "Alright!", "Amazing!", "Another one", "You did it!", "Unbelivable!",\
         "Great approach!", "Hole in one!", "Nice on!", "Nice Shot!", "Knockout!", "Nice Throw!", "Great Shot!", "Nice Spare!", "Perfect", \

@@ -4,6 +4,7 @@ import numpy as np
 import src.actives as acv
 import time
 import dill as pickle
+import os
 
 # TODO: cleanup code by fixing the nested list situation
 class network:
@@ -37,7 +38,7 @@ class network:
         self.aveNablaC = []
         lastLen = inputLayer + self.bias
         for layer in hiddenLayer:
-            neurons = [neuron(lastLen, self.learnRate) for i in range(layer)]
+            neurons = [neuron(lastLen, self.learnRate, optimizer=opt) for i in range(layer)]
             self.network.append(neurons)
             #print(layer + self.bias)
             lastLen = layer + self.bias
@@ -81,45 +82,33 @@ class network:
                         self.aveNablaC[layer][node][deltaWeight] += nablaC[layer][node][deltaWeight]
         self.batchCount +=1
         #this is broken
-        if self.batchCount >= self.batch:
+        if self.batchCount >= self.batch -1:
             for layer in range(len(self.network)):
                 for neuron in range(len(self.network[layer])):
                     for deltaWeight in range(len(self.aveNablaC[layer][neuron])):
                         self.aveNablaC[layer][neuron][deltaWeight] = self.aveNablaC[layer][neuron][deltaWeight]/self.batch
-                    self.network[layer][neuron].learn(self.aveNablaC[layer][neuron])
+                    self.network[layer][neuron].learn(self.aveNablaC[layer][neuron], self.batch)
             self.aveNablaC = []
             self.batchCount = 0
 
 
     # This is very confusing maths that is hard to explain in a comment
     # To gain an understanding, watch https://www.youtube.com/watch?v=tIeHLnjs5U8
-    # currently extremely inefficient
+    # currently inefficient
     def backprop(self, expt):
         startTime = time.time()
-        #print(f"backprop start time:{startTime}")
         self.cost = self.loss(self.outputs, expt)
         nablaC = []
-        #midTime = time.time()-startTime
-        #print(f"backprop mid1 time:{midTime}s")
         for matrix in range(len(self.matrixes)):
             layeredImportance = []
             for node in range(len(self.matrixes[matrix])):
                 nodelImportance = []
-                # this is broken
                 for weight in range(len(self.matrixes[matrix][node])):
-                    #weightStart = time.time()
                     ak = self.inputs[matrix][weight][0]
-                    #akTime = time.time()-weightStart
-                    #print(f"    ak time: {akTime}s")
                     do = self.dAct(self.outputs[matrix][node][0])
-                    #doTime = time.time()-akTime-weightStart
-                    #print(f"    do time: {doTime}s")
                     pcpa = self.partCpartA(matrix, node, expt)
-                    #pcpaTime = time.time() - doTime -akTime -weightStart
-                    #print(f"   pcpa time: {pcpaTime}s")
                     weightImportance = ak*do*pcpa
                     nodelImportance.append(weightImportance)
-                    #print(f"  matrix: {matrix} node: {node} weight: {weight} done, time:{time.time() - weightStart}s")
                 layeredImportance.append(nodelImportance)
             nablaC.append(layeredImportance)
         self.resetAC()
@@ -173,6 +162,8 @@ class network:
 
     @staticmethod
     def readNetwork(path):
+        print(path)
+        print(os.getcwd())
         with open(path, "rb") as f:
             self = pickle.load(f)
         return self

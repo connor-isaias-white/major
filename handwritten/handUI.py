@@ -67,7 +67,7 @@ def netGuess(data):
     #net.learn([int(i==answer) for i in range(10)])
 
 if __name__ == "__main__":
-    net = getNetwork("../networks/mist.obj")
+    net = getNetwork("../networks/mnist.obj")
     net.batch = 1
     net.learnRate = 0.001
 
