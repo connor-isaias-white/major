@@ -48,7 +48,7 @@ def train(runs, nn, images, labels, batch, graph):
                     graphing(epochList, epochPercentages)
                 epoch = 0
                 epochCorrect = 0
-            print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\r")
+            print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\n")
         print("\n")
     return nn
 
@@ -75,7 +75,7 @@ def getNetwork(path, learnRate, batch, loss, opt, hiddenLayers):
 
 
 if __name__ == "__main__":
-    random.seed=(5)
+    random.seed(5)
     if len(sys.argv) > 8:
         learnRate = float(sys.argv[1])
         batch = int(sys.argv[2])
