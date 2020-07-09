@@ -1,10 +1,13 @@
 import random
+import sys
+sys.path.append("..")
 import math
 # import matplotlib.pyplot as plt
 # import numpy as np
 # import pandas
 import copy
 import tkinter as tk
+from src.network import network as NET
 
 config = {
     # 'layers': 2,
@@ -21,7 +24,7 @@ class Network:
         self.layers = []
         self.fitness = 0
         self.childrenMade = 0
-        if len(kwargs) is not 0:
+        if len(kwargs):
             #print(id(kwargs['layers']))
             #print(id(self.layers))
             self.layers = copy.deepcopy(kwargs['layers'])
@@ -61,7 +64,7 @@ class Network:
         for layer in baby.layers:
             for neuron in layer:
                 if random.random() < chance:
-                    neuron.bias += rate*random.uniform(-1,1)
+                    neuron.bias += rate*random.uniform(-1, 1)
                     neuron.bias = self.keepInRange(neuron.bias, 1)
                 for weight in range(len(neuron.weights)):
                     if random.random() < chance:
@@ -226,24 +229,29 @@ def plot(network):
                     distance2 = canvas_height/(config['initinputLength']*3-len(NN[layer-1])+1)
                     x2 = int(((layer)/(len(NN)+1))*canvas_width)+10
                     y2 = int( (canvas_height/2) +((-1)**(input+1)) *distance2*(int((input+1+((len(NN[layer-1])+1) % 2))/2) ))
-                    w.create_line(x2,y2,x,y, width = weight*10, fill=colour)
+                    w.create_line(x2, y2, x, y, width=weight*10, fill=colour)
             else:
                 radius = 10
-            circle(w, x,  y, radius, colour)
+            circle(w, x, y, radius, colour)
     network.layers = NN[1:]
     tk.mainloop()
 
-def circle(canvas,x,y, r, colour):
+def circle(canvas, x, y, r, colour):
    id = canvas.create_oval(x-r,y-r,x+r,y+r, fill=colour)
    return id
+
+def train2(nn, data):
+    print(data)
 
 if __name__ == "__main__":
     trainData, testData = createData()
     while len(testData)*len(trainData) == 0:
         trainData, testData = createData()
     print(f"train data length: {len(trainData)}, test data length: {len(testData)}")
+    print(trainData)
+    neural = NET(8, [7], 2, learnRate=0.1, bias=True, batch=64, actFun="LeReLu", opt="gd", loss="mse")
 
-    best = train()
+    best = train2(neural, trainData)
     if best != []:
         plot(best)
         '''print(f"input {config['initinputLength']} 1s or 0s seperated by commas and the network will tell if 2 1s are ajacent")
