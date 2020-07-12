@@ -48,7 +48,7 @@ def train(runs, nn, images, labels, batch, graph):
                     graphing(epochList, epochPercentages)
                 epoch = 0
                 epochCorrect = 0
-            print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\n")
+            print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\r")
         print("\n")
     return nn
 
