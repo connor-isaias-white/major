@@ -24,11 +24,11 @@ class network:
 
         #set optimizers
         if loss == "mse":
-            self.loss = lambda outs, expt: sum([(outs[-1][i] - expt[i])**2 for i in range(len(expt))])
-            self.dloss = lambda outs, expt, node: 2*(outs[-1][node]- expt[node])
+            self.loss = lambda outs, expt: sum([(outs[-1][i][0] - expt[i])**2 for i in range(len(expt))])
+            self.dloss = lambda outs, expt, node: 2*(outs[-1][node][0]- expt[node])
         elif loss == "cel":
-            self.loss = lambda outs, expt: sum([-expt[i]*np.log(outs[-1][i]) for i in range(len(expt))])
-            self.dloss = lambda outs, expt, node: -expt[node]/(outs[-1][node])
+            self.loss = lambda outs, expt: sum([-expt[i]*np.log(outs[-1][i][0]) for i in range(len(expt))])
+            self.dloss = lambda outs, expt, node: -expt[node]/(outs[-1][node][0])
 
         # configuation variables
         self.testingTimes = []
@@ -37,35 +37,9 @@ class network:
         self.bias = bias
         self.batch = batch
         self.batchCount = 0
-        self.aveNablaC = np.zeros(len(hiddenLayer)+1)
+        self.aveNablaC = []
         self.network = self.crete_network(inputLayer, hiddenLayer, outputLayer, opt)
-        self.biggestin = self.most_weights(hiddenLayer, inputLayer)
-        self.biggestout = self.most_weights(hiddenLayer, outputLayer)
 
-    def most_weights(self, *args):
-        biggest = 0
-        comb = []
-        for x in args:
-            if type(x) == list:
-                comb += x
-            else:
-                comb += [x]
-        for i in range(len(comb)-1):
-            if comb[i] *comb[i+1] > biggest:
-                biggest = comb[i] *comb[i+1]
-        return biggest
-
-    def find_largest(self, *args):
-        biggest = 0
-        for y in args:
-            if type(y) == list:
-                for x in y:
-                    if x > biggest:
-                        biggest = x
-            else:
-                if y > biggest:
-                    biggest = x
-        return biggest
 
     def crete_network(self, inputLayer, hiddenLayer, outputLayer, opt):
         '''  crete_network to given size '''
@@ -81,36 +55,27 @@ class network:
 
     def guess(self, inp):
         ''' guesses an output with a given input '''
-        self.inputs = np.zeros((len(self.network),self.biggestin^2))
-        self.outputs = np.zeros((len(self.network),self.biggestout^2))
-        a = inp.reshape(len(inp), 1)
+        self.inputs = []
+        self.outputs = []
+        a = inp.reshape(len(inp),1)
         self.updateMatrix()
         #print(self.matrixes)
         for i in range(len(self.matrixes)):
             # add bias
             if self.bias:
                 a = np.concatenate((a,[[1]]))
-            #print(self.inputs)
-            #print(i)
-            #print(a)
-            for j in range(len(a)-1):
-                self.inputs[i][j] = a[j]
+            self.inputs.append(a)
             b = self.matrixes[i]
             #print(f"a:\n{a.shape}\n{a.T}")
             #print(f"b:\n{b.shape}\n{b.T}")
             a = self.act(b.dot(a))
-            for j in range(len(a)-1):
-                self.outputs[i][j] = a[j]
+            self.outputs.append(a)
         #print("OUT TIME")
         #print(self.rAct(a))
         a = self.out(self.rAct(a))
-        for j in range(len(a)-1):
-            self.outputs[-1][j] = a[j]
+        self.outputs[-1] = a
         #print(f"guess: {a}")
         return a
-
-    def updateBatch(self, nablaC):
-        pass
 
     def learn(self, ans):
         ''' learns from the last guess with a given output '''
@@ -118,30 +83,40 @@ class network:
         if self.batchCount == 0:
             self.aveNablaC = nablaC
         else:
-            self.aveNablaC += nablaC
-        self.batchCount += 1
-        if self.batchCount >= self.batch:
-            self.aveNablaC = self.aveNablaC/self.batch
+            for layer in range(len(nablaC)):
+                for node in range(len(nablaC[layer])):
+                    for deltaWeight in range(len(nablaC[layer][node])):
+                        self.aveNablaC[layer][node][deltaWeight] += nablaC[layer][node][deltaWeight]
+        self.batchCount +=1
+        #this is broken
+        if self.batchCount >= self.batch -1:
             for layer in range(len(self.network)):
                 for neuron in range(len(self.network[layer])):
+                    for deltaWeight in range(len(self.aveNablaC[layer][neuron])):
+                        self.aveNablaC[layer][neuron][deltaWeight] = self.aveNablaC[layer][neuron][deltaWeight]/self.batch
                     self.network[layer][neuron].learn(self.aveNablaC[layer][neuron], self.batch)
-            self.aveNablaC = None
+            self.aveNablaC = []
             self.batchCount = 0
 
     def backprop(self, expt):
-        ''' function to return the gradient of the loss function '''
-        self.j = 0
         startTime = time.time()
         self.cost = self.loss(self.outputs, expt)
-        nablaC = np.zeros((len(self.network), self.find_largest([len(i) for i in self.network]), self.biggestin))
+        nablaC = []
         for matrix in range(len(self.matrixes)):
+            layeredImportance = []
             for node in range(len(self.matrixes[matrix])):
+                nodelImportance = []
                 for weight in range(len(self.matrixes[matrix][node])):
-                    nablaC[matrix][node][weight] = self.partial_sum(expt, matrix, node, weight)
+                    ak = self.inputs[matrix][weight][0]
+                    do = self.dAct(self.outputs[matrix][node][0])
+                    pcpa = self.partCpartA(matrix, node, expt)
+                    weightImportance = ak*do*pcpa
+                    nodelImportance.append(weightImportance)
+                layeredImportance.append(nodelImportance)
+            nablaC.append(layeredImportance)
         self.resetAC()
         endTime = time.time() - startTime
-        self.testingTimes.append(endTime)
-        print(f"ave backprop end time:{sum(self.testingTimes)/len(self.testingTimes)}s")
+        #print(f"backprop end time:{endTime}s")
         return nablaC
 
     def partial_sum(self, expt, matrix, node, weight):
@@ -171,8 +146,7 @@ class network:
                 return self.network[layer][node].AC
 
     def updateMatrix(self):
-        matrixes = np.array([np.resize(np.array([node.weights for node in layer]), \
-                (len(layer),len(layer[0].weights))) for layer in self.network])
+        matrixes = [np.resize(np.array([node.weights for node in layer]), (len(layer),len(layer[0].weights))) for layer in self.network]
         self.matrixes = matrixes
         return self.matrixes
 
@@ -204,4 +178,3 @@ class network:
         with open(path, "rb") as f:
             self = pickle.load(f)
         return self
-
