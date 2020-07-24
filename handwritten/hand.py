@@ -31,11 +31,11 @@ def train(runs, nn, images, labels, batch, graph):
         correct = 0
         for image in range(len(images)):
             guess = nn.guess(np.array(images[image])/255)
-            #print(guess)
+            print(guess)
             numguess = np.where(guess == np.amax(guess))[0][0]
-            #print(numguess)
-            #print(labels[image])
-            nn.learn([0 if labels[image] != i else 1.0 for i in range(10)])
+            print(numguess)
+            print(labels[image])
+            nn.learn([0 if labels[image] != i else 1.0 for i in range(len(guess))])
             if numguess == labels[image]:
                 correct +=1
                 epochCorrect += 1
@@ -48,7 +48,7 @@ def train(runs, nn, images, labels, batch, graph):
                     graphing(epochList, epochPercentages)
                 epoch = 0
                 epochCorrect = 0
-            print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\r")
+            print(f"dataset percentage: {(correct/(1+image))*100}%, image: {image}, run:{run}, cost per last epoch: {aveCost}, elapsed time: {timedelta(seconds=int(time())-startTime)}          ", end="\n")
         print("\n")
     return nn
 
@@ -70,7 +70,7 @@ def getNetwork(path, learnRate, batch, loss, opt, hiddenLayers):
         nn.batch = batch
         nn.learnRate = learnRate
     else:
-        nn = network(784, hiddenLayers, 10, learnRate=learnRate, bias=True, batch=batch, actFun="LeReLu", opt=opt, loss=loss)
+        nn = network(784, hiddenLayers[:-1], hiddenLayers[-1], learnRate=learnRate, bias=True, batch=batch, actFun="LeReLu", opt=opt, loss=loss)
     return nn
 
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         opt = sys.argv[5]
         io = sys.argv[6]
         graph = bool(int(sys.argv[7]))
-        hiddenLayers = list(map(lambda x: int(x, ), sys.argv[8].split(",")))
+        layers = list(map(lambda x: int(x, ), sys.argv[8].split(",")))
     else:
         learnRate = 0.1
         batch = 128
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         opt = "gd"
         io = "../networks/mnist.obj"
         graph = False
-        hiddenLayers = [16,16]
+        layers = [16,16,10]
 
     print(f"learnRate: {learnRate}")
     print(f"batch: {batch}")
@@ -102,11 +102,11 @@ if __name__ == "__main__":
     print(f"optimizer: {opt}")
     print(f"io: {io}")
     print(f"graph: {graph}")
-    print(f"architecture: 784, {hiddenLayers}, 10\n")
-    mndata = MNIST('./samples')
+    print(f"architecture: 784, {layers}\n")
+    mndata = MNIST('./samples/numbers')
     trainImages, trainLabels = mndata.load_training()
 
-    convnn = getNetwork(io, learnRate, batch, loss,opt, hiddenLayers)
+    convnn = getNetwork(io, learnRate, batch, loss,opt, layers)
     convnn = train(runs, convnn, trainImages, trainLabels, batch, graph)
     convnn.writeNetwork(io)
     print("training done")
