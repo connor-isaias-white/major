@@ -103,7 +103,7 @@ if __name__ == "__main__":
     print(f"io: {io}")
     print(f"graph: {graph}")
     print(f"architecture: 784, {layers}\n")
-    mndata = MNIST('./samples/numbers')
+    mndata = MNIST('./samples/letters')
     trainImages, trainLabels = mndata.load_training()
 
     convnn = getNetwork(io, learnRate, batch, loss,opt, layers)

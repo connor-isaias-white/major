@@ -17,9 +17,9 @@ class network:
             self.rAct = lambda y: acv.rSig(y)
             self.out = self.act
         elif actFun == "LeReLu":
-            self.act = lambda x: acv.LeReLu(x, 0.01)
-            self.dAct = lambda x: acv.dLeReLu(x, 0.01)
-            self.rAct = lambda y: acv.LeReLu(y, 100)
+            self.act = lambda x: acv.LeReLu(x, 0.001)
+            self.dAct = lambda x: acv.dLeReLu(x, 0.001)
+            self.rAct = lambda y: acv.LeReLu(y, 1000)
             self.out = lambda x: acv.softmax(x)
 
         #set optimizers

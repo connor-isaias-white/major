@@ -65,13 +65,28 @@ def netGuess(data):
     guess = net.guess(data)
     numguess = np.where(guess == np.amax(guess))[0][0]
     rounded = round(np.amax(guess) * 100,2)
-    w['text'] = "Guess: "+str(numguess)+ "\nCertainty: "+str(rounded)+"%"
-    #answer = int(input("Input the number that it was meant to be: "))
-    #if numguess == answer:
-    #    net.batch += 1
-    #else:
-    #    net.batch = 1
-    #net.learn([int(i==answer) for i in range(10)])
+    info['text'] = "Guess: "+str(numguess)+ "\nCertainty: "+str(rounded)+"%"
+
+def main_page():
+    title['text'] = "Neural Networks"
+    clear()
+    cv.pack_forget()
+    btn_clear.pack_forget()
+    info.pack_forget()
+    navigation['text'] = 'test'
+    navigation['command'] = draw_page
+    navigation.pack()
+
+def draw_page():
+    title['text'] = "Test Network"
+    lastx, lasty = None, None
+    image_number = 0
+    cv.bind('<1>', activate_paint)
+    info.pack()
+    cv.pack(expand=False, fill=None, side="top")
+    navigation['text'] = 'home'
+    navigation['command'] = main_page
+    btn_clear.pack()
 
 if __name__ == "__main__":
     net = getNetwork("../networks/mnist2.obj")
@@ -81,18 +96,16 @@ if __name__ == "__main__":
     root = Tk()
     root.resizable(False, False)
     root.geometry("500x500")
-    lastx, lasty = None, None
-    image_number = 0
     title = Label(root, text="Test Network", height=2, font=("./font/rb.ttf", 40))
     title.pack()
+
+    info = Label(root, justify='left', text="Guess: 0\nCertainty: 00.00%")
     cv = Canvas(root, width=300, height=300, bg='black')
-    w = Label(root, justify='left', text="Guess: 0\nCertainty: 00.00%")
-    w.pack()
+    navigation = Button(root, text = "test", command= draw_page)
+    btn_clear = Button(text="clear", command=clear)
+
     image1 = Image.new('L', (300, 300), 'black')
     draw = ImageDraw.Draw(image1)
-    cv.bind('<1>', activate_paint)
-    cv.pack(expand=False, fill=None, side="top")
-    btn_save = Button(text="clear", command=clear)
-    btn_save.pack()
+    main_page()
     root.mainloop()
 
