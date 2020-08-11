@@ -9,26 +9,26 @@ import os
 # network class to create and change neural networks
 class network:
     def __init__(self, inputLayer, hiddenLayer, outputLayer, learnRate=0.1, bias=True, batch=128, \
-            actFun="sig", loss="mse", opt="gd"):
+            actFun="LeReLu", loss="mse", opt="gd"):
         #set activation functions
         if actFun == "sig":
             self.act = lambda x: acv.sig(x, a=1)
             self.dAct = lambda x: acv.dSig(x)
             self.rAct = lambda y: acv.rSig(y)
-            self.out = self.act
+            self.out = lambda x: acv.sig(x,a=1)
         elif actFun == "LeReLu":
-            self.act = lambda x: acv.LeReLu(x, 0.001)
-            self.dAct = lambda x: acv.dLeReLu(x, 0.001)
-            self.rAct = lambda y: acv.LeReLu(y, 1000)
+            self.act = lambda x: acv.LeReLu(x, 0.01)
+            self.dAct = lambda x: acv.dLeReLu(x, 0.01)
+            self.rAct = lambda y: acv.LeReLu(y, 100)
             self.out = lambda x: acv.softmax(x)
 
         #set optimizers
         if loss == "mse":
             self.loss = lambda outs, expt: sum([(outs[-1][i][0] - expt[i])**2 for i in range(len(expt))])
-            self.dloss = lambda outs, expt, node: 2*(outs[-1][node][0]- expt[node])
+            self.dloss = lambda outs, expt, node, ins: 2*(outs[-1][node][0]- expt[node])
         elif loss == "cel":
-            self.loss = lambda outs, expt: sum([-expt[i]*np.log(outs[-1][i][0]) for i in range(len(expt))])
-            self.dloss = lambda outs, expt, node: -expt[node]/(outs[-1][node][0])
+            self.loss = lambda outs, expt: sum([-expt[i]*np.log(outs[-1][i][0]) - (1-expt[i])*np.log(1-outs[-1][i][0]) for i in range(len(expt))])
+            self.dloss = lambda outs, expt, node, ins: (-expt[node]+(outs[-1][node][0]))*ins[-1][node][0]
 
         # configuation variables
         self.testingTimes = []
@@ -57,6 +57,7 @@ class network:
         ''' guesses an output with a given input '''
         self.inputs = []
         self.outputs = []
+        self.z = []
         a = inp.reshape(len(inp),1)
         self.updateMatrix()
         #print(self.matrixes)
@@ -68,12 +69,13 @@ class network:
             b = self.matrixes[i]
             #print(f"a:\n{a.shape}\n{a.T}")
             #print(f"b:\n{b.shape}\n{b.T}")
-            a = self.act(b.dot(a))
+            a = b.dot(a)
+            self.z.append(a)
+            if i != len(self.matrixes) -1:
+                a = self.act(a)
+            else:
+                a = self.out(a)
             self.outputs.append(a)
-        #print("OUT TIME")
-        #print(self.rAct(a))
-        a = self.out(self.rAct(a))
-        self.outputs[-1] = a
         #print(f"guess: {a}")
         return a
 
@@ -88,8 +90,8 @@ class network:
                     for deltaWeight in range(len(nablaC[layer][node])):
                         self.aveNablaC[layer][node][deltaWeight] += nablaC[layer][node][deltaWeight]
         self.batchCount +=1
-        #this is broken
-        if self.batchCount >= self.batch -1:
+        if self.batchCount >= self.batch:
+            #print(self.batchCount)
             for layer in range(len(self.network)):
                 for neuron in range(len(self.network[layer])):
                     for deltaWeight in range(len(self.aveNablaC[layer][neuron])):
@@ -126,16 +128,14 @@ class network:
         return weightedImportance
 
     #partial c / parial a
-    #speed fix by saving them to the node
-    # they currently belive they change the bias
     def partCpartA(self, layer, node, expt):
         startTime = time.time()
         if layer == len(self.matrixes)-1:
-            return self.dloss(self.outputs, expt, node)
+            return self.dloss(self.outputs, expt, node, self.inputs)
         else:
             if self.network[layer][node].AC == 0:
                 AC = [self.matrixes[layer+1][j][node]* \
-                    self.dAct(self.rAct(self.outputs[layer+1][j]))* \
+                    self.dAct((self.z[layer+1][j]))* \
                     self.partCpartA(layer+1, j, expt)
                     for j in range(len(self.matrixes[layer+1]))]
                 sumAC = sum(AC)

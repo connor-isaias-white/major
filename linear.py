@@ -68,5 +68,5 @@ if __name__ == "__main__":
     trainData = createData(100)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    percy = network(len(trainData[0][0]),[2],1,batch =20, learnRate=0.5, actFun="LeReLu", bias=True)
+    percy = network(len(trainData[0][0]),[2],1,batch =20, learnRate=0.5, actFun="sig", bias=True, loss="cel")
     draw(trainData)

@@ -10,6 +10,13 @@ from datetime import timedelta
 from threading import Thread
 from src.network import network
 
+def temp_graph_data(data, labels):
+    plt.scatter([i[0] for i in data], \
+            [i[1] for i in data],
+            c=[[0,0,i] for i in labels])
+    plt.show()
+
+
 def graphing(graphData, percentage):
     plt.close()
     plt.ion()
@@ -31,15 +38,17 @@ def train(runs, nn, images, labels, batch, graph):
         correct = 0
         for image in range(len(images)):
             guess = nn.guess(np.array(images[image])/255)
-            print(guess)
+            print(f"guess:\n{guess}")
             numguess = np.where(guess == np.amax(guess))[0][0]
-            print(numguess)
-            print(labels[image])
-            nn.learn([0 if labels[image] != i else 1.0 for i in range(len(guess))])
+            print(f"numguess: {numguess}")
+            print(f"Answer: {labels[image]}")
+            #print([0.0 if labels[image] != i else 1.0 for i in range(len(guess))])
+            nn.learn([0.0 if labels[image] != i else 1.0 for i in range(len(guess))])
             if numguess == labels[image]:
                 correct +=1
                 epochCorrect += 1
             epoch += nn.cost
+            #print(f"cost: {nn.cost}")
             if nn.batchCount == 0:
                 aveCost = epoch/batch
                 if graph:
@@ -63,19 +72,18 @@ def test(nn, images, labels):
     percentage = correct/len(images)
     return percentage
 
-def getNetwork(path, learnRate, batch, loss, opt, hiddenLayers):
+def getNetwork(path, learnRate, batch, loss, opt, hiddenLayers, input_size):
     if p.exists(path):
         print("Using previous found network\n")
         nn = network.readNetwork(path)
         nn.batch = batch
         nn.learnRate = learnRate
     else:
-        nn = network(784, hiddenLayers[:-1], hiddenLayers[-1], learnRate=learnRate, bias=True, batch=batch, actFun="LeReLu", opt=opt, loss=loss)
+        nn = network(input_size, hiddenLayers[:-1], hiddenLayers[-1], learnRate=learnRate, bias=True, batch=batch, actFun="LeReLu", opt=opt, loss=loss)
     return nn
 
 
 if __name__ == "__main__":
-    random.seed(5)
     if len(sys.argv) > 8:
         learnRate = float(sys.argv[1])
         batch = int(sys.argv[2])
@@ -102,15 +110,20 @@ if __name__ == "__main__":
     print(f"optimizer: {opt}")
     print(f"io: {io}")
     print(f"graph: {graph}")
-    print(f"architecture: 784, {layers}\n")
-    mndata = MNIST('./samples/letters')
-    trainImages, trainLabels = mndata.load_training()
+    mndata = MNIST('./samples/numbers')
+    trainData, trainLabels = mndata.load_training()
+    #trainData = [[(random.random()*2)-1, (random.random()*2)-1] for i in range(1000)]
+    #trainLabels = [int(i[0]-0.5>i[1] or i[0]+0.5<i[1]) for i in trainData]
+    input_size = len(trainData[0])
+    print(f"architecture: {input_size}, {layers}\n")
 
-    convnn = getNetwork(io, learnRate, batch, loss,opt, layers)
-    convnn = train(runs, convnn, trainImages, trainLabels, batch, graph)
+    convnn = getNetwork(io, learnRate, batch, loss,opt, layers, input_size)
+    convnn = train(runs, convnn, trainData, trainLabels, batch, graph)
     convnn.writeNetwork(io)
     print("training done")
     print(" ")
-    testImages, testLabels = mndata.load_testing()
-    results = test(convnn, testImages, testLabels)
+    testData, testLabels = mndata.load_testing()
+    #testData = [[random.random()*2-1, random.random()*2-1] for i in range(20)]
+    #testLabels = [int(i[0]-0.5>i[1]or i[0]+0.5<i[1]) for i in testData]
+    results = test(convnn, testData, testLabels)
     print(f"final percentage: {results}")

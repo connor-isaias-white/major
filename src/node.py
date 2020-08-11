@@ -30,6 +30,7 @@ class neuron(node):
         self.s = 0
         self.b1 = b1
         self.b2 = b2
+        self.t = 1
         self.optimizer = optimizer
         return super().__init__("neuron")
 
@@ -41,10 +42,11 @@ class neuron(node):
                 self.v = self.v*self.b1 + grad[weight]
                 self.weights[weight] -= self.learnRate*self.v
             elif self.optimizer == "adam":
-                self.v = self.b1*self.v+(1-self.b1)*grad[weight]
-                self.s = self.b2*self.s + (1-self.b2)*((grad[weight])**2)
-                vhat = self.v/(1-self.b1**batch)
-                shat = self.s/(1-self.b2**batch)
+                self.v = self.b2*self.v+(1-self.b2)*grad[weight]
+                self.s = self.b1*self.s + (1-self.b1)*((grad[weight])**2)
+                vhat = self.v/(1-self.b1**self.t)
+                shat = self.s/(1-self.b2**self.t)
+                self.t +=1
                 self.weights[weight] -= self.learnRate*(vhat)/((shat)**(1/2)+1*10**(-8))
 
     def mutate(chance):
