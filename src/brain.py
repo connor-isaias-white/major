@@ -18,7 +18,6 @@ class brain:
     def adjust(self, boundries):
         if self.alive:
             self.xmov = self.movements[self.itter][0]
-            print(f"i: {self.itter}, x: {self.x}, y: {self.y}")
             self.ymov = self.movements[self.itter][1]
             self.x += self.xmov
             self.y += self.ymov
@@ -26,7 +25,6 @@ class brain:
             for bound in boundries:
                 if bound(self.x, self.y):
                     self.alive = False
-                    print("DEAD")
     def score(self, goalx, goaly, cost):
         self.cost = cost(self.x, self.y, goalx, goaly)
         return self.cost

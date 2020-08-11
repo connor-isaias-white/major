@@ -11,6 +11,7 @@ class gen:
         self.goalx = 0
         self.goaly = 0
         self.lossfun = lambda x, y, exptx, expty: ((exptx-x)**2 + (expty-y)**2)
+        self.mutation_rate = 0.1
 
     def populate(self, population):
         self.population = population
@@ -28,10 +29,11 @@ class gen:
             bound = lambda posx, posy: posx>x1 and posx<x2 and posy>y1 and posy<y2
         self.boundries.append(bound)
 
-    def goal(self, x, y):
+    def goal(self, x, y, width):
+        self.goal_width = width
         self.goalx = x
         self.goaly = y
-        self.boundries.append(lambda posx, posy: posx==x and posy==y)
+        self.boundries.append(lambda posx, posy: abs(posx-x) <width and abs(posy-y)<width)
 
     def sort(self, x):
         ''' sort an array of arrays in decending order based off the second item '''
@@ -48,7 +50,7 @@ class gen:
 
     def new(self):
         rankings = []
-        for i in range(self.population):
+        for i in range(len(self.brains)):
             score = self.brains[i].score(self.goalx, self.goaly, self.lossfun)
             rankings.append([self.brains[i], score])
         rankings = self.sort(rankings)
@@ -61,7 +63,7 @@ class gen:
         for new_populant in range(self.population-1):
             fittest = random.randint(0, len(weighted_rankings)-1)
             baby = copy.deepcopy(weighted_rankings[fittest][0])
-            baby.mutate(0.1)
+            baby.mutate(self.mutation_rate)
             new_generation.append(baby)
         self.brains = new_generation
         return new_generation
