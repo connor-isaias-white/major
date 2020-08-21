@@ -101,6 +101,7 @@ class network:
             self.batchCount = 0
 
     def backprop(self, expt):
+        ''' preforms the backpropogation algorithm, required to learn '''
         startTime = time.time()
         self.cost = self.loss(self.outputs, expt)
         nablaC = []
@@ -122,6 +123,7 @@ class network:
         return nablaC
 
     def partial_sum(self, expt, matrix, node, weight):
+        ''' a dirvation of the sum to find the gradient '''
         weightedImportance= self.inputs[matrix][weight]* \
                 self.dAct(self.outputs[matrix][node])* \
                 self.partCpartA(matrix, node, expt)
@@ -146,33 +148,39 @@ class network:
                 return self.network[layer][node].AC
 
     def updateMatrix(self):
+        ''' update the matrix to the new values '''
         matrixes = [np.resize(np.array([node.weights for node in layer]), (len(layer),len(layer[0].weights))) for layer in self.network]
         self.matrixes = matrixes
         return self.matrixes
 
     def randomize(self):
+        ''' randomise values '''
         for layer in self.network:
             for node in layer:
                 for weight in node:
                     weight = random.random()
 
     def resetAC(self):
+        ''' reset cached values '''
         for layer in self.network:
             for node in layer:
                 node.AC =0
 
     def mutate(self, chance):
+        ''' change random parts of network '''
         for layer in self.network:
             for node in layer:
                 node.mutate(chance)
 
     def writeNetwork(self, path):
+        ''' save network to a file '''
         self.updateMatrix()
         with open(path, "wb+") as f:
             pickle.dump(self, f)
 
     @staticmethod
     def readNetwork(path):
+        ''' read a network from file and inherate its values '''
         print(path)
         print(os.getcwd())
         with open(path, "rb") as f:

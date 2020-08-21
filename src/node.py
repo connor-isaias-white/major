@@ -4,24 +4,29 @@ import src.actives as acv
 
 class node:
     def __init__(self, name):
+        ''' initilise values '''
         self.name = name
 
     def output(self, inputs):
+        ''' output its value given an input'''
         out = acv.tanh(self.weights.dot(np.squeeze(inputs)))
         self.val = out
         return out
 
 class bias(node):
+    ''' a bias node subclass '''
     def __init__(self, numInputs):
         self.val = 1
         self.weights = np.array([0 for i in range(numInputs)])
         return super().__init__("bias")
 
     def learn(self, *args):
+        ''' biases do not change '''
         pass
 
 class neuron(node):
     def __init__(self, numInputs, learnRate, val=0, optimizer="gd", b1=0.9, b2=0.999):
+        ''' initulise values '''
         self.weights=np.array([random.uniform(-0.1,0.1) for i in range(numInputs)])
         self.learnRate = learnRate
         self.val = val
@@ -35,6 +40,7 @@ class neuron(node):
         return super().__init__("neuron")
 
     def learn(self, grad, batch):
+        ''' apply the changes that the network has learnt '''
         for weight in range(len(self.weights)):
             if self.optimizer == "gd":
                 self.weights[weight] -= grad[weight]*self.learnRate

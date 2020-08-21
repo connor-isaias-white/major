@@ -1,8 +1,9 @@
-from src.brain import brain
 import random
 import copy
+from src.brain import brain
 class gen:
     def __init__(self, instructions, start=[0, 0]):
+        ''' initilise values '''
         self.instructions = instructions
         self.brains = []
         self.start = start
@@ -14,15 +15,18 @@ class gen:
         self.mutation_rate = 0.1
 
     def populate(self, population):
+        ''' create a populaiton of brains '''
         self.population = population
         for i in range(population):
             self.brains.append(brain(self.instructions, self.start[0], self.start[1]))
 
     def move(self):
+        ''' commands all the brains to move '''
         for i in range(self.population):
             self.brains[i].adjust(self.boundries)
 
     def create_boundry(self, x1, y1, x2, y2, out=False):
+        ''' creates a boundary that will kill brains'''
         if out:
             bound = lambda posx, posy: posx<x1 or posx>x2 or posy<y1 or posy>y2
         else:
@@ -30,6 +34,7 @@ class gen:
         self.boundries.append(bound)
 
     def goal(self, x, y, width):
+        ''' create a goal for brains to reach '''
         self.goal_width = width
         self.goalx = x
         self.goaly = y
@@ -49,6 +54,7 @@ class gen:
         return x
 
     def new(self):
+        ''' creates the new generation based of how well each of the last gen did '''
         rankings = []
         for i in range(len(self.brains)):
             score = self.brains[i].score(self.goalx, self.goaly, self.lossfun)
