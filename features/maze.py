@@ -13,7 +13,6 @@ def clear():
 
 def maze_page():
     title['text'] = "Maze Network"
-    image_number = 0
     cv.pack(expand=False, fill=None, side="top")
     btn_start.pack(side="bottom", pady=20)
     randomness.pack(side="left", padx=60, anchor="n")

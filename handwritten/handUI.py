@@ -90,8 +90,6 @@ def draw_page():
 
 if __name__ == "__main__":
     net = getNetwork("../networks/mnist2.obj")
-    net.batch = 1
-    net.learnRate = 0.001
 
     root = Tk()
     root.resizable(False, False)

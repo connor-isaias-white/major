@@ -1,0 +1,34 @@
+
+Home page:
+    On the home page you can navigate to the help page, the deep learing page 
+    and the renforced learning page using the corresponding button you can 
+    return to this page at anytime
+Deep Learing:
+    On this page a deep neural network will atempt to guess a handwritten drawn
+    digit.
+    You are required to draw a single digit using the mouse/trackpad and clicking
+    down and draging over the black square.
+    You can clear any drawings you make by using the "clear" button.
+    The network has been trained to analysis data where the digits take up most
+    of the canvas so it is recomended that you draw these digits big and take
+    up most of the canvas to increase the chances of the network getting it right
+    To leave this page click on the "home" button
+Renforced Learning:
+    On this page you are able to witness a generational renforced learning algorthm
+    learn and adapt to changes.
+    This algorithm's goal is to get to the circle on the opposite side of the map.
+    It does this by creating a population of 10-1000 "brains" which make move a
+    random direction every tick.
+    The brains that got the closes to the goal are most likely to reproduce.
+    The babys of these brains will create the next generation and will have a %
+    of their movements different to the parrent.
+    The cycle will then repeat until and the population should keep getting closer.
+    The colour of the 'brain' is determined by their parent's colour
+    You are able to use sliders to change the population size, which determines 
+    how many are created in the next generation, the randomness, which determines
+    how much the babys differ from the parents and the speed which will change how
+    often the movemnets are shown, making it more choppy but faster.
+    You can draw obstacles by clicking down the mouse and draging to the other corner
+    of the rectangle, this will block any brains from coming through and cause them
+    to adapt
+    To leave this page click on the "home" button
