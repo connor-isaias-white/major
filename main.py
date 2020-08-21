@@ -237,7 +237,7 @@ if __name__ == "__main__":
     btn_start = Button(text="start", command=run, height=2, width=30)
 
     speed = Scale(root, from_=1, to=20, orient="horizontal", label="Speed")
-    pop_num = Scale(root, from_=2, to=1000, orient="horizontal", label="Population")
+    pop_num = Scale(root, from_=2, to=500, orient="horizontal", label="Population")
     randomness = Scale(root, from_=0, to=1, orient="horizontal", resolution=0.01, label="Randomness")
 
     fluid_draw = False
