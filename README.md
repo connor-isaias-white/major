@@ -18,14 +18,14 @@ Activate the python enviroment using `source bin/activate`
 run the main file using `python3 main.py`
 
 A window looking like this should appear:
-![Homepage](readmeIMGs/home.png)
+![Homepage](./readmeIMGs/home.png)
 
 If any module import errors occur, ensure you are in the python enviroment.
     If the error still occurs, try installing the missing packages with pip
 
 ## Processes
 ### Help
-![Help](readmeIMGs/help.png)
+![Help](./readmeIMGs/help.png)
 
 The help page can be reached by clicking the help button
 
@@ -35,7 +35,7 @@ This user guide will also provide help
 
 To go back click the home button
 ### Deep learning
-![Deep](readmeIMGs/deep.png)
+![Deep](./readmeIMGs/deep.png)
 
 This page can be accessed by clicking the Deep learing button on the home page
 
@@ -52,7 +52,7 @@ You can clear with the clear button
 To go home click the home button
 
 ### Reinforced Learning
-![Reinforced](readmeIMGs/reinforced.png)
+![Reinforced](./readmeIMGs/reinforced.png)
 
 On this page you can witness an AI reach a goal through reinforced learning
 
@@ -65,7 +65,7 @@ Changing randomness effects how different the next generation was from the previ
 Changing speed speeds up the simulation by updating the graphics less, increasing this makes it faster but more choppy
 
 You are able to create obsitcals for the AIs to adapt to:
-![Reinforced2](readmeIMGs/reinforced2.png)
+![Reinforced2](./readmeIMGs/reinforced2.png)
 
 By clicking down with the mouse and draging, a rectangle is created with two opposite corners at the position you clicked down the mouse
 and another at the location where you released the mouse
