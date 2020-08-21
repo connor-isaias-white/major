@@ -129,7 +129,7 @@ def main_page():
     speed.pack_forget()
     info.pack_forget()
     btn_start.pack_forget()
-    navigation['text'] = 'test'
+    navigation['text'] = 'Deep Learning'
     navigation['command'] = draw_page
     navigation['width'], navigation['height'] = 20, 2
     navigation['font'] = ('futura', 30)
@@ -229,9 +229,9 @@ if __name__ == "__main__":
     title.pack()
 
     cv = Canvas(root, width=300, height=300, bg='black')
-    navigation = Button(root, text="test", command=draw_page)
-    navigation2 = Button(root, text="maze", command=draw_page)
-    navigation3 = Button(root, text="help", command=help_page)
+    navigation = Button(root, text="Deep Learning", command=draw_page)
+    navigation2 = Button(root, text="Renforced Learning", command=draw_page)
+    navigation3 = Button(root, text="Help", command=help_page)
     info = Label(root, justify='left', text="Guess: 0\nCertainty: 00.00%")
     btn_clear = Button(text="clear", command=clear)
     btn_start = Button(text="start", command=run, height=2, width=30)
