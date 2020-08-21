@@ -49,7 +49,7 @@ class gen:
                 if x[i][1] < x[i+1][1]:
                     temp = x[i]
                     x[i] = x[i+1]
-                    x[i+1]= temp
+                    x[i+1] = temp
                     not_ordered = True
         return x
 

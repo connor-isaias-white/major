@@ -42,40 +42,40 @@ def netGuess(data):
 
 def activate_paint(e):
     ''' start keydown '''
-    global lastx, lasty, fluid_draw
-    if fluid_draw:
+    global LASTX, LASTY, FLUID_DRAW
+    if FLUID_DRAW:
         cv.unbind('<ButtonRelease-1>')
         cv.bind('<B1-Motion>', paint)
     else:
         cv.unbind('<B1-Motion>')
         cv.bind('<ButtonRelease-1>', draw_rect)
-    lastx, lasty = e.x, e.y
+    LASTX, LASTY = e.x, e.y
 
 def draw_rect(e):
     ''' draws a rectangle on release '''
-    global lastx, lasty
-    cv.create_rectangle(lastx, lasty, e.x, e.y, fill="white")
-    if e.x > lastx:
-        x1, x2 = lastx, e.x
+    global LASTX, LASTY
+    cv.create_rectangle(LASTX, LASTY, e.x, e.y, fill="white")
+    if e.x > LASTX:
+        x1, x2 = LASTX, e.x
     else:
-        x1, x2 = e.x, lastx
-    if e.y > lasty:
-        y1, y2 = lasty, e.y
+        x1, x2 = e.x, LASTX
+    if e.y > LASTY:
+        y1, y2 = LASTY, e.y
     else:
-        y1, y2 = e.y, lasty
+        y1, y2 = e.y, LASTY
     generation.create_boundry(x1, y1, x2, y2)
 
 def paint(e):
     ''' apply lines to image and canvas '''
-    global lastx, lasty
+    global LASTX, LASTY
     x, y = e.x, e.y
     width = 15
-    cv.create_line((lastx, lasty, x, y), fill="white", width=30)
+    cv.create_line((LASTX, LASTY, x, y), fill="white", width=30)
     cv.create_oval(x-width, y-width, x+width, y+width, outline="white", fill="white")
     #  --- PIL
-    draw.line((lastx, lasty, x, y), fill='white', width=30)
+    draw.line((LASTX, LASTY, x, y), fill='white', width=30)
     draw.ellipse([(x-width, y-width), (x+width, y+width)], outline='white', fill='white')
-    lastx, lasty = x, y
+    LASTX, LASTY = x, y
     imgData()
 
 
@@ -96,14 +96,14 @@ def show_gen(first):
                 i.canvasobj = cv.create_oval(i.x -width, i.y-width, i.x+width, i.y+width, fill=i.colour, outline=outline)
             else:
                 cv.move(i.canvasobj, i.xmov, i.ymov)
-    if i.itter % speed.get() ==0 or i.itter == generation.instructions - 1:
+    if i.itter % speed.get() == 0 or i.itter == generation.instructions - 1:
         cv.update()
     return total_alive
 
 def run():
     btn_start.pack_forget()
     ''' runs the maze renforced learning '''
-    while not fluid_draw:
+    while not FLUID_DRAW:
         for i in range(generation.instructions):
             generation.move()
             #clear()
@@ -159,14 +159,14 @@ def help_page():
 
 def draw_page():
     ''' Set up the UI of the handwritten numerals guesser '''
-    global lastx, lasty, fluid_draw
+    global LASTX, LASTY, FLUID_DRAW
     clear()
     info['font'] = ('futura', 14)
     title['text'] = "Deep Learning"
     info['text'] = "Guess: 0\nCertainty: 0.00%"
     navigation2.pack_forget()
     navigation3.pack_forget()
-    lastx, lasty = None, None
+    LASTX, LASTY = None, None
     cv.bind('<1>', activate_paint)
     info.pack()
     cv.pack(expand=False, fill=None, side="top")
@@ -175,13 +175,13 @@ def draw_page():
     navigation['width'], navigation['height'] = 20, 1
     navigation['font'] = ('futura', 12)
     btn_clear.pack()
-    fluid_draw = True
+    FLUID_DRAW = True
 
 def maze_page():
     ''' Set up the UI of the renforced learning pathfinding '''
-    global fluid_draw
+    global FLUID_DRAW
     clear()
-    fluid_draw = False
+    FLUID_DRAW = False
     navigation2.pack_forget()
     navigation3.pack_forget()
     navigation['text'] = "home"
@@ -240,7 +240,7 @@ if __name__ == "__main__":
     pop_num = Scale(root, from_=2, to=500, orient="horizontal", label="Population")
     randomness = Scale(root, from_=0, to=1, orient="horizontal", resolution=0.01, label="Randomness")
 
-    fluid_draw = False
+    FLUID_DRAW = False
     image1 = Image.new('L', (300, 300), 'black')
     draw = ImageDraw.Draw(image1)
 

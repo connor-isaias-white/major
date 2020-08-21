@@ -2,7 +2,7 @@ import random
 class brain:
     def __init__(self,instructions, x,y):
         ''' initialise brain values '''
-        self.start = [x,y]
+        self.start = [x, y]
         self.x = x
         self.y = y
         self.speed = 10
@@ -14,7 +14,7 @@ class brain:
         self.colour = "#"+"".join([hex(random.randint(17, 255)).replace("0x", "").upper() for i in range(3)])
         self.alive = True
         for i in range(instructions):
-            self.movements.append([random.randint(-1*self.speed,1*self.speed) for j in range(2)])
+            self.movements.append([random.randint(-1*self.speed, 1*self.speed) for j in range(2)])
 
     def adjust(self, boundries):
         ''' move brain when called '''
@@ -37,7 +37,7 @@ class brain:
         ''' mutates its instuctions '''
         for i in range(len(self.movements)):
             if random.random() <= chance:
-                self.movements[i] = [random.randint(-1*self.speed,1*self.speed) for j in range(2)]
+                self.movements[i] = [random.randint(-1*self.speed, 1*self.speed) for j in range(2)]
         return self.reset()
 
     def reset(self):
