@@ -141,6 +141,7 @@ def main_page():
     navigation3['width'], navigation3['height'] = 20, 2
     navigation3['font'] = ('futura', 30)
     navigation3.pack()
+    generation.boundries = []
 
 def help_page():
     navigation2.pack_forget()
@@ -196,12 +197,12 @@ def maze_page():
     speed.pack(side="left", padx=0, anchor="n")
     pop_num.pack(side="left", padx=60, anchor="n")
     show_gen(True)
-    make_goal(250,250)
+    make_goal(250, 250)
 
 def make_goal(x, y):
     ''' setup the goal for the brains to find '''
     width = 3
-    generation.goal(x,y, width)
+    generation.goal(x, y, width)
     cv.create_oval(x-width, y-width, x+width, y+width, fill="yellow", outline="yellow")
 
 def clear():
@@ -213,7 +214,7 @@ if __name__ == "__main__":
     ''' When code is first run '''
     # Collect neural network
     net = get_network("networks/mnist2.obj")
-    generation = gen(200, start=[50,50])
+    generation = gen(200, start=[50, 50])
     generation.create_boundry(0, 0, 300, 300, out=True)
     generation.populate(100)
 
