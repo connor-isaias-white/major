@@ -101,6 +101,7 @@ def show_gen(first):
     return total_alive
 
 def run():
+    btn_start.pack_forget()
     ''' runs the maze renforced learning '''
     while not fluid_draw:
         for i in range(generation.instructions):
@@ -179,6 +180,7 @@ def draw_page():
 def maze_page():
     ''' Set up the UI of the renforced learning pathfinding '''
     global fluid_draw
+    clear()
     fluid_draw = False
     navigation2.pack_forget()
     navigation3.pack_forget()
