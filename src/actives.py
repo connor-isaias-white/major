@@ -3,9 +3,9 @@ import numpy as np
 
 # Sigmiod
 def sig(x, a=1):
-    y =1/(np.exp(-x*a)+1)
+    y = np.exp(x+a)/(1 + np.exp(x+a))
     return y
-
+# derivative of sigmoid
 def dSig(x):
     y = sig(x)*(1-sig(x))
     return y
@@ -62,9 +62,24 @@ def bi(x):
         y=0
     return y
 
+# converts a range of numbers to positive
+def pos(x, a):
+    if type == int:
+        y=(x+a)/2
+    else:
+        y=x
+        for i in range(len(y)):
+            y[i] = (y[i]+a)/2
+    return y
 # Softmax where x is an array of outputs
 def softmax(x):
     #y = [(np.exp(j)/sum(list(map(np.exp,x))))[0] for j in x]
-    y = np.exp(x) / np.sum(np.exp(x), axis=0) 
-
+    a = np.exp(x)
+    b= np.sum(np.exp(x))
+    if b == 0:
+        print("\ndivision by 0 error")
+        print(x)
+        print(np.exp(x))
+        print(b)
+    y = np.divide(a,b, out=np.zeros_like(a), where=b!=0)
     return y
