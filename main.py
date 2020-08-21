@@ -219,6 +219,7 @@ if __name__ == "__main__":
 
     # Set up UI
     root = Tk()
+    root.title("NETLEARN :)")
     root.resizable(False, False)
     root.geometry("550x575")
     title = Label(root, text="Test Network", height=2, font=("futura", 40))
